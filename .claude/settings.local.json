@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan test --testsuite=Feature --filter=\"BrandManagementTest\" --no-coverage)",
+      "Bash(findstr:*)",
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\":*)",
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan test --filter=\"BrandManagementTest\" --no-coverage)",
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan test --filter=\"super_admin_can_create_brand\" --no-coverage)",
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan test --filter=\"logo_upload_works\" --no-coverage)",
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan test:*)",
+      "Bash(\"C:\\\\Users\\\\Dev\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan test --filter=\"can_search_brands_by_name\" --no-coverage)",
+      "Bash(where:*)"
+    ]
+  }
+}

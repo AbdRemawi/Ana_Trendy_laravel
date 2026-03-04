@@ -1,0 +1,180 @@
+/* ============================================
+   CRITICAL BASE STYLES - Layout Foundation
+   These MUST be before Tailwind import to ensure
+   all layout utilities work correctly.
+   ============================================ */
+
+/* Reset box model globally */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Reset margins for layout utilities */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+/* HTML element setup */
+html {
+    /* Remove height constraint - let body control layout */
+    /* height: 100%; REMOVED - was causing conflicts */
+    scroll-behavior: smooth;
+}
+
+/* Body element setup - handled by Tailwind classes in layouts */
+body {
+    /* height and overflow controlled by layout-specific Tailwind classes */
+    /* No global height constraint here */
+}
+
+/* ============================================
+   TAILWIND CSS v4
+   ============================================ */
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --color-primary: #835E3D;
+    --color-secondary: #FFEEDC;
+    --color-accent-light: #F2E7DF;
+    --color-accent: #CA9F77;
+}
+
+/* Alpine.js x-cloak - prevents flash of unstyled content */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Premium Gradient - Very subtle for calm feel */
+.premium-gradient {
+    background: linear-gradient(135deg, #F2E7DF 0%, #EDE2DA 50%, #E8DDD5 100%);
+}
+
+/* Font fallbacks - fonts are loaded via <link> in layout */
+[lang="ar"] body {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+[lang="en"] body {
+    font-family: 'Minion Variable Concept', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* RTL-safe utilities - Using CSS logical properties for better RTL support */
+/* These utilities automatically adapt to text direction */
+[dir="rtl"] .ms-3,
+[dir="ltr"] .ms-3 {
+    margin-inline-start: 0.75rem;
+    margin-inline-end: 0;
+}
+
+[dir="rtl"] .me-3,
+[dir="ltr"] .me-3 {
+    margin-inline-end: 0.75rem;
+    margin-inline-start: 0;
+}
+
+/* RTL-safe padding utilities */
+[dir="rtl"] .ps-4,
+[dir="ltr"] .ps-4 {
+    padding-inline-start: 1rem;
+    padding-inline-end: 0;
+}
+
+[dir="rtl"] .pe-4,
+[dir="ltr"] .pe-4 {
+    padding-inline-end: 1rem;
+    padding-inline-start: 0;
+}
+
+/* RTL-safe text alignment */
+[dir="rtl"] .text-start {
+    text-align: right;
+}
+
+[dir="ltr"] .text-start {
+    text-align: left;
+}
+
+[dir="rtl"] .text-end {
+    text-align: left;
+}
+
+[dir="ltr"] .text-end {
+    text-align: right;
+}
+
+/* RTL-safe border radius for directional elements */
+[dir="rtl"] .rounded-s {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+[dir="ltr"] .rounded-s {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+[dir="rtl"] .rounded-e {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+[dir="ltr"] .rounded-e {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Hide scrollbar for sidebar navigation while keeping scroll functionality */
+aside nav::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+/* Firefox scrollbar for sidebar - hidden */
+aside nav {
+    scrollbar-width: none;
+}
+
+/* Search Bar Enhancements */
+.search-input:focus {
+    width: 18rem;
+}
+
+@screen sm {
+    .search-input:focus {
+        width: 20rem;
+    }
+}
+
+@screen lg {
+    .search-input:focus {
+        width: 22rem;
+    }
+}
+
+/* Search input transition */
+.search-input {
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Search input placeholder animation */
+.search-input::placeholder {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.search-input:focus::placeholder {
+    opacity: 0.7;
+}
