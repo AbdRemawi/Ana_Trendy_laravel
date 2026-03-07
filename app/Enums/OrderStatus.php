@@ -43,8 +43,13 @@ enum OrderStatus: string
             ]),
             self::WITH_DELIVERY_COMPANY => in_array($status, [
                 self::RECEIVED,
+                self::CANCELLED,
+                self::RETURNED,
             ]),
-            self::RECEIVED => false,
+            self::RECEIVED => in_array($status, [
+                self::CANCELLED,
+                self::RETURNED,
+            ]),
             self::CANCELLED => in_array($status, [
                 self::PROCESSING,
             ]),

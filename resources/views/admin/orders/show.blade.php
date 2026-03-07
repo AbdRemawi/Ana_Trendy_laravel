@@ -229,6 +229,7 @@
                 {{-- Update Status Form --}}
                 <form method="POST" action="{{ route('admin.orders.update-status', $order) }}">
                     @csrf
+                    @method('PATCH')
                     <div class="space-y-3">
                         <select name="status"
                                 class="w-full px-3 py-2

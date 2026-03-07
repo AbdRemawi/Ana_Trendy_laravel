@@ -1,59 +1,290 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Ana Trendy - Laravel E-commerce Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based e-commerce platform with advanced product filtering, role-based permissions, inventory management, and order processing.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Authentication & Authorization**
+  - Role-based access control (Admin, Manager, User)
+  - Permission-based access management
+  - Multi-language support (Arabic/English)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Product Management**
+  - Advanced product filtering and search
+  - Image management with primary image selection
+  - Size and gender categorization
+  - Offer/discount pricing support
+  - Stock quantity tracking
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Inventory Management**
+  - Transaction-based inventory tracking
+  - Supply, sale, return, damage, and adjustment transactions
+  - Real-time stock calculation
+  - Stock validation before transactions
 
-## Learning Laravel
+- **Order Management**
+  - Courier assignment
+  - City-based delivery fees
+  - Coupon code system
+  - Order status workflow
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Product Filtering System
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Overview
 
-## Laravel Sponsors
+The application implements a robust product filtering system that works across both the admin panel and public API. The filtering system is designed to be:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Performant**: Uses database queries and indexes for fast filtering
+- **Flexible**: Supports multiple filter combinations
+- **Reusable**: Built on traits that can be applied to any model
+- **Dynamic**: Returns available filter options based on current results
 
-### Premium Partners
+### Filterable Trait
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+The `Filterable` trait (`app/Traits/Filterable.php`) provides reusable query filtering scopes:
 
-## Contributing
+```php
+trait Filterable
+{
+    // Filter by status
+    public function scopeByStatus(Builder $query, ?string $status): Builder;
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    // Apply common filters from request
+    public function scopeApplyFilters(
+        Builder $query,
+        Request $request,
+        array $filters = [],
+        array $searchColumns = ['name']
+    ): Builder;
 
-## Code of Conduct
+    // Paginate filtered results
+    public function scopePaginateFiltered(
+        Builder $query,
+        Request $request,
+        int $perPage = 25
+    ): LengthAwarePaginator;
+}
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Searchable Trait
 
-## Security Vulnerabilities
+The `Searchable` trait (`app/Traits/Searchable.php`) provides search functionality:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```php
+trait Searchable
+{
+    // Search with OR logic (matches any column)
+    public function scopeSearch(
+        Builder $query,
+        ?string $search,
+        array $columns = ['name']
+    ): Builder;
+
+    // Search with AND logic (matches all columns)
+    public function scopeSearchAll(
+        Builder $query,
+        ?string $search,
+        array $columns = ['name']
+    ): Builder;
+}
+```
+
+### Admin Panel Filtering
+
+**Location**: `app/Http/Controllers/Admin/ProductController.php`
+
+The admin product index supports the following filters:
+
+| Filter | Description | Example |
+|--------|-------------|---------|
+| `brand` | Filter by brand ID | `?brand=5` |
+| `category` | Filter by category ID | `?category=3` |
+| `size` | Filter by product size | `?size=L` |
+| `gender` | Filter by gender | `?gender=female` |
+| `status` | Filter by status | `?status=active` |
+| `search` | Search in product name | `?search=bag` |
+
+**How it works in the controller:**
+
+```php
+public function index(Request $request): View
+{
+    $query = Product::query()
+        ->with(['brand', 'category', 'images'])
+        ->withStockQuantity();
+
+    // Apply filters
+    if ($request->filled('brand')) {
+        $query->byBrand($request->brand);
+    }
+
+    if ($request->filled('category')) {
+        $query->byCategory($request->category);
+    }
+
+    if ($request->filled('size')) {
+        $query->bySize($request->size);
+    }
+
+    if ($request->filled('gender')) {
+        $query->byGender($request->gender);
+    }
+
+    if ($request->filled('status')) {
+        $query->byStatus($request->status);
+    }
+
+    if ($request->filled('search')) {
+        $query->search($request->search);
+    }
+
+    $products = $query->latest()->paginate(20);
+}
+```
+
+### API Filtering
+
+**Location**: `app/Http/Controllers/Api/ProductController.php`
+
+The public API provides advanced filtering with metadata:
+
+#### Available Filters
+
+| Filter | Type | Description | Example |
+|--------|------|-------------|---------|
+| `brand` | string | Filter by brand slug | `?brand=gucci` |
+| `brands` | array | Filter by multiple brand slugs | `?brands[]=gucci&brands[]=prada` |
+| `brand_id` | int | Filter by brand ID | `?brand_id=5` |
+| `brand_ids` | array | Filter by multiple brand IDs | `?brand_ids[]=5&brand_ids[]=7` |
+| `category` | string | Filter by category slug | `?category=handbags` |
+| `category_id` | int | Filter by category ID | `?category_id=3` |
+| `size` | string | Filter by size | `?size=L` |
+| `gender` | string | Filter by gender | `?gender=female` |
+| `min_price` | float | Minimum effective price | `?min_price=50` |
+| `max_price` | float | Maximum effective price | `?max_price=500` |
+| `offers_only` | boolean | Only products with offers | `?offers_only=1` |
+| `search` | string | Search in product name | `?search=leather` |
+
+#### Sorting Options
+
+| Value | Description |
+|-------|-------------|
+| `newest` | Newest products first (default) |
+| `price_low_high` | Price: low to high |
+| `price_high_low` | Price: high to low |
+
+**Example API Request:**
+
+```bash
+GET /api/products?brand=gucci&size=L&min_price=100&max_price=500&sort=price_low_high
+```
+
+#### Response with Filter Metadata
+
+The API returns metadata about available filters based on the current results:
+
+```json
+{
+  "data": [...],
+  "meta": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 42,
+    "filters": {
+      "brands": [
+        {"id": 5, "name": "Gucci", "slug": "gucci"},
+        {"id": 7, "name": "Prada", "slug": "prada"}
+      ],
+      "price_range": {
+        "min": 100,
+        "max": 500
+      },
+      "sizes": ["S", "M", "L", "XL"],
+      "genders": ["female", "unisex"],
+      "has_offers": true,
+      "offer_count": 12,
+      "total_products": 42
+    }
+  }
+}
+```
+
+### Product Model Scopes
+
+**Location**: `app/Models/Product.php`
+
+The Product model includes these filtering scopes:
+
+```php
+// Filter by brand
+Product::byBrand($brandId);
+
+// Filter by category
+Product::byCategory($categoryId);
+
+// Filter by size
+Product::bySize('L');
+
+// Filter by gender
+Product::byGender('female');
+
+// Filter by status
+Product::byStatus('active');
+
+// Only products with active offers
+Product::withOffers();
+
+// Include stock quantity in query
+Product::withStockQuantity();
+
+// Only products in stock
+Product::inStock();
+
+// Search in name
+Product::search('leather bag');
+```
+
+### Filter Effectiveness
+
+The filtering system improves the user experience by:
+
+1. **Narrowing Results**: Users can quickly find products matching specific criteria
+2. **Price Range Control**: Set budget limits with min/max price filters
+3. **Brand/Category Browsing**: Filter by favorite brands or categories
+4. **Attribute Selection**: Find products by size (S, M, L, XL, XXL) and gender (male, female, unisex)
+5. **Deal Hunting**: Use `offers_only` to find discounted products
+6. **Smart Metadata**: API returns available filter options based on current filtered results
+
+### Performance Optimizations
+
+- **Database Indexes**: Filtered columns have indexes for fast queries
+- **Single Query Stock Calculation**: Stock quantity calculated in one query using `withStockQuantity()`
+- **Eager Loading**: Related data (brand, category, images) loaded efficiently
+- **Metadata Cloning**: Filter metadata calculated without affecting main query
+
+## Installation
+
+1. Clone the repository
+2. Run `composer install`
+3. Copy `.env.example` to `.env` and configure
+4. Run `php artisan key:generate`
+5. Run `php artisan migrate --seed`
+6. Run `npm install && npm run dev`
+7. Start the development server: `php artisan serve`
+
+## Default Credentials
+
+After seeding, you can login with:
+- **Email**: admin@example.com
+- **Password**: password
+
+## Testing
+
+Run the test suite:
+```bash
+php artisan test
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the MIT license.

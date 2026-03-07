@@ -95,11 +95,10 @@
         @if($deletePermission)
             @can($deletePermission)
                 <button type="button"
-                        class="p-2 text-gray-400 transition-colors hover:text-red-600 dark:hover:text-red-400"
+                        class="delete-btn p-2 text-gray-400 transition-colors hover:text-red-600 dark:hover:text-red-400"
                         title="{{ __('admin.delete') }}"
-                        data-url="{{ route($deleteRoute, $model) }}"
-                        data-modal-confirm="{{ __('admin.confirm_delete_brand') }}"
-                        data-item-name="{{ $model->name ?? $model->id ?? '' }}">
+                        data-delete-url="{{ route($deleteRoute, $model) }}"
+                        data-confirm-message="{{ __('admin.confirm_delete_item', ['item' => $model->name ?? $model->id ?? '']) }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6h2m-2 0h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 012 2z"/>
                     </svg>
@@ -107,11 +106,10 @@
             @endcan
         @else
             <button type="button"
-                    class="p-2 text-gray-400 transition-colors hover:text-red-600 dark:hover:text-red-400"
+                    class="delete-btn p-2 text-gray-400 transition-colors hover:text-red-600 dark:hover:text-red-400"
                     title="{{ __('admin.delete') }}"
-                    data-url="{{ route($deleteRoute, $model) }}"
-                    data-modal-confirm="{{ __('admin.confirm_delete_brand') }}"
-                    data-item-name="{{ $model->name ?? $model->id ?? '' }}">
+                    data-delete-url="{{ route($deleteRoute, $model) }}"
+                    data-confirm-message="{{ __('admin.confirm_delete_item', ['item' => $model->name ?? $model->id ?? '']) }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6h2m-2 0h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 012 2z"/>
                 </svg>

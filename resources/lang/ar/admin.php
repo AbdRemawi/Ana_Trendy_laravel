@@ -835,7 +835,7 @@ return [
     'status_with_delivery_company' => 'مع شركة التوصيل',
     'status_received' => 'مستلم',
     'status_cancelled' => 'ملغي',
-    'status_returned' => 'مرتج',
+    'status_returned' => 'مرتجع',
     'all_statuses' => 'جميع الحالات',
 
     // Order Actions
@@ -1012,4 +1012,9 @@ return [
     // Additional Help Text
     'important_note' => 'ملاحظة هامة',
     'warning' => 'تحذير',
+
+    // ============ DELETE MODAL ============
+    'confirm_delete' => 'تأكيد الحذف',
+    'confirm_delete_message' => 'هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.',
+    'confirm_delete_item' => 'هل أنت متأكد من حذف ":item"؟',
 ];

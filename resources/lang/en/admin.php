@@ -1010,4 +1010,9 @@ return [
 
     // Validation for minimum_order_amount
     'validation_minimum_order_required' => 'The minimum order amount field is required.',
+
+    // ============ DELETE MODAL ============
+    'confirm_delete' => 'Confirm Delete',
+    'confirm_delete_message' => 'Are you sure you want to delete this item? This action cannot be undone.',
+    'confirm_delete_item' => 'Are you sure you want to delete ":item"?',
 ];

@@ -15,6 +15,7 @@ class City extends Model
     protected $fillable = [
         'name',
         'is_active',
+        'default_delivery_fee',
     ];
 
     /**
@@ -24,6 +25,7 @@ class City extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'default_delivery_fee' => 'decimal:3',
     ];
 
     /**

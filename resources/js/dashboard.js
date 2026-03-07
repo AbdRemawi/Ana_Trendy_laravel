@@ -169,39 +169,60 @@ window.Dashboard = {
 
     DeleteActions: {
         init() {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
-            const deleteButtons = document.querySelectorAll(".delete-user-btn");
-            deleteButtons.forEach((button) => {
-                button.addEventListener("click", (e) => {
+            // Handle all delete buttons - support multiple patterns for backward compatibility
+            // Pattern 1 (new standard): .delete-btn with data-delete-url and data-confirm-message
+            // Pattern 2 (legacy): .delete-{entity}-btn with data-url and data-modal-confirm
+            const deleteButtonSelectors = [
+                '.delete-btn',
+                '.delete-city-btn',
+                '.delete-courier-btn',
+                '.delete-fee-btn',
+                '.delete-transaction-btn',
+                '.delete-permission-btn',
+                '.delete-role-btn',
+                '.delete-user-btn',
+                '.delete-category-btn',
+                '[data-delete-url]',
+                '[data-url]'
+            ].join(', ');
+
+            document.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest(deleteButtonSelectors);
+                if (deleteBtn && (deleteBtn.hasAttribute('data-delete-url') || deleteBtn.hasAttribute('data-url'))) {
+                    console.log('Delete button clicked', deleteBtn);
                     e.preventDefault();
-                    const url = button.getAttribute("data-url");
-                    const userName = button.getAttribute("data-name");
-                    const confirmMessage = button.getAttribute("data-confirm");
-                    if (confirm(`${confirmMessage}: ${userName}?`)) {
-                        this.submitDeleteForm(url, csrfToken);
+                    e.stopPropagation();
+
+                    // Support both attribute naming conventions
+                    let url = deleteBtn.getAttribute('data-delete-url') || deleteBtn.getAttribute('data-url');
+                    let message = deleteBtn.getAttribute('data-confirm-message') || deleteBtn.getAttribute('data-modal-confirm');
+
+                    console.log('Delete button data:', { url, message, hasFunction: typeof window.showDeleteModal });
+
+                    if (url && message) {
+                        if (typeof window.showDeleteModal === 'function') {
+                            window.showDeleteModal(message, url);
+                        } else {
+                            console.error('showDeleteModal function not found!');
+                            // Fallback to native confirm
+                            if (confirm(message)) {
+                                this.submitDeleteForm(url);
+                            }
+                        }
+                    } else {
+                        console.error('Missing url or message:', { url, message });
                     }
-                });
+                }
             });
-            const showPageDeleteButton = document.getElementById("delete-user-show-btn");
-            const showPageDeleteForm = document.getElementById("deleteUserForm");
-            if (showPageDeleteButton && showPageDeleteForm) {
-                showPageDeleteButton.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const userName = showPageDeleteButton.getAttribute("data-name") || "";
-                    const confirmMessage = showPageDeleteButton.getAttribute("data-confirm") || __("admin.delete_user_warning");
-                    if (confirm(`${confirmMessage}: ${userName}?`)) {
-                        showPageDeleteForm.submit();
-                    }
-                });
-            }
         },
 
-        submitDeleteForm(url, token) {
-            const form = document.createElement("form");
-            form.method = "POST";
+        submitDeleteForm(url) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const form = document.createElement('form');
+            form.method = 'POST';
             form.action = url;
             form.innerHTML = `
-                <input type="hidden" name="_token" value="${token}">
+                <input type="hidden" name="_token" value="${csrfToken}">
                 <input type="hidden" name="_method" value="DELETE">
             `;
             document.body.appendChild(form);

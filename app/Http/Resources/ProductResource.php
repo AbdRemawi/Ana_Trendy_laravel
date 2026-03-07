@@ -18,9 +18,9 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Determine effective price (offer_price if exists, else sale_price)
-        $effectivePrice = $this->offer_price ? (float) $this->offer_price : (float) $this->sale_price;
-        $hasOffer = $this->offer_price !== null;
+        // Determine effective price (offer_price if exists and is less than sale_price, else sale_price)
+        $hasOffer = $this->offer_price !== null && $this->offer_price < $this->sale_price;
+        $effectivePrice = $hasOffer ? (float) $this->offer_price : (float) $this->sale_price;
 
         // Get stock status
         $stockQuantity = (int) ($this->stock_quantity ?? 0);

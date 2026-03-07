@@ -96,7 +96,7 @@
 
                 {{-- Delete --}}
                 <button type="button"
-                        class="p-2 text-gray-400 hover:text-red-600
+                        class="delete-btn p-2 text-gray-400 hover:text-red-600
                                    rounded-lg hover:bg-red-50
                                    transition-colors duration-150"
                                    data-url="{{ route('admin.categories.destroy', $category) }}"

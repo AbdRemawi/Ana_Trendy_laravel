@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\InventoryTransaction;
+use App\Models\Order;
 use App\Models\Product;
 
 /**
@@ -176,5 +177,70 @@ class InventoryService
         }
 
         return $stocks;
+    }
+
+    /**
+     * Validate stock availability for order items.
+     *
+     * @param array $items Array of ['product_id' => int, 'quantity' => int]
+     * @return array<string> Array of error messages (empty if valid)
+     */
+    public function validateStockAvailability(array $items): array
+    {
+        $errors = [];
+
+        foreach ($items as $item) {
+            $product = Product::find($item['product_id']);
+
+            if (!$product) {
+                $errors[] = "Product ID {$item['product_id']} not found.";
+                continue;
+            }
+
+            $currentStock = $this->calculateCurrentStock($product);
+            $projectedStock = $currentStock - $item['quantity'];
+
+            if ($projectedStock < 0) {
+                $errors[] = "Product '{$product->name}' has insufficient stock. Available: {$currentStock}, Required: {$item['quantity']}.";
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Decrease stock for order items (creates sale transactions).
+     *
+     * @param Order $order
+     * @return void
+     */
+    public function decreaseStockForOrder(Order $order): void
+    {
+        foreach ($order->items as $item) {
+            InventoryTransaction::create([
+                'product_id' => $item->product_id,
+                'type' => InventoryTransaction::TYPE_SALE,
+                'quantity' => $item->quantity,
+                'notes' => "Order #{$order->order_number}",
+            ]);
+        }
+    }
+
+    /**
+     * Restore stock for order items (creates return transactions).
+     *
+     * @param Order $order
+     * @return void
+     */
+    public function restoreStockForOrder(Order $order): void
+    {
+        foreach ($order->items as $item) {
+            InventoryTransaction::create([
+                'product_id' => $item->product_id,
+                'type' => InventoryTransaction::TYPE_RETURN,
+                'quantity' => $item->quantity,
+                'notes' => "Restored from order #{$order->order_number}",
+            ]);
+        }
     }
 }
