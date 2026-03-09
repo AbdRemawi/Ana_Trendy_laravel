@@ -46,7 +46,7 @@ class StoreCouponRequest extends FormRequest
             'valid_from' => [
                 'required',
                 'date',
-                'after:now',
+                'after_or_equal:now',
             ],
             'valid_until' => [
                 'nullable',

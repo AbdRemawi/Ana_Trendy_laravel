@@ -131,6 +131,9 @@ class Coupon extends Model
 
     public function isNotYetStarted(): bool
     {
+        if (is_null($this->valid_from)) {
+            return false;
+        }
         return now()->lt($this->valid_from);
     }
 }

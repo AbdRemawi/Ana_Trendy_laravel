@@ -25,6 +25,15 @@ class CouponValidationService
         }
 
         if ($coupon->isNotYetStarted()) {
+            \Log::error('Coupon not yet started', [
+                'coupon_code' => $coupon->code,
+                'valid_from' => $coupon->valid_from ? $coupon->valid_from->format('Y-m-d H:i:s') : 'null',
+                'valid_from_timezone' => $coupon->valid_from ? $coupon->valid_from->timezone : 'null',
+                'now' => now()->format('Y-m-d H:i:s'),
+                'now_timezone' => now()->timezone,
+                'is_null' => is_null($coupon->valid_from),
+                'comparison_result' => $coupon->valid_from ? now()->lt($coupon->valid_from) : 'null comparison',
+            ]);
             return [
                 'valid' => false,
                 'error' => 'This coupon is not yet valid.',

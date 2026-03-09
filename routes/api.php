@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CitiesController;
+use App\Http\Controllers\Api\CouponController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,12 @@ Route::prefix('v1')->group(function () {
     // Cities API
     Route::get('cities', [CitiesController::class, 'index']);
     Route::get('cities/{id}', [CitiesController::class, 'show']);
+
+    // Coupon API
+    Route::prefix('coupon')->group(function () {
+        Route::post('validate', [CouponController::class, 'validateCoupon']);
+        Route::post('preview', [CouponController::class, 'preview']);
+    });
 
     // Checkout API
     Route::post('checkout', [CheckoutController::class, 'store']);
