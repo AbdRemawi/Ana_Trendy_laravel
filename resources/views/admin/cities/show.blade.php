@@ -5,9 +5,8 @@
     $pageTitle = $city->name;
 @endphp
 
-<div class="max-w-4xl mx-auto">
-    {{-- Page Header --}}
-    <div class="mb-6">
+{{-- Page Header --}}
+<div class="mb-6">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900">
@@ -213,4 +212,4 @@
             {{ __('admin.back_to_cities') }}
         </a>
     </div>
-</div>
+@endsection
