@@ -14,6 +14,11 @@
     @endif
     {{-- Arabic font (Times New Roman) is set in CSS via [lang="ar"] selector --}}
 
+    @stack('styles')
+
+    {{-- jQuery for Select2 --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-screen w-full bg-accent-light text-gray-900 antialiased overflow-hidden">

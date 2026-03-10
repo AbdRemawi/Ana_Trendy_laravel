@@ -1,5 +1,35 @@
 @extends('layouts.dashboard')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 42px;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        line-height: 32px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+    }
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: #e0f2fe;
+    }
+    .select2-dropdown {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $pageTitle = __('admin.edit_product');
@@ -81,7 +111,7 @@
                         <select
                             id="brand_id"
                             name="brand_id"
-                            class="w-full px-4 py-2.5
+                            class="brand-select w-full px-4 py-2.5
                                    rounded-lg
                                    border border-gray-200
                                    focus:ring-2 focus:ring-primary/20 focus:border-primary
@@ -93,7 +123,9 @@
                         >
                             <option value="">{{ __('admin.select_brand') }}</option>
                             @foreach($brands as $brand)
-                                <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
+                                <option value="{{ $brand->id }}"
+                                        {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}
+                                        data-image="{{ $brand->logo_url }}">
                                     {{ $brand->name }}
                                 </option>
                             @endforeach
@@ -114,7 +146,7 @@
                         <select
                             id="category_id"
                             name="category_id"
-                            class="w-full px-4 py-2.5
+                            class="category-select w-full px-4 py-2.5
                                    rounded-lg
                                    border border-gray-200
                                    focus:ring-2 focus:ring-primary/20 focus:border-primary
@@ -126,7 +158,9 @@
                         >
                             <option value="">{{ __('admin.select_category') }}</option>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                <option value="{{ $category->id }}"
+                                        {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}
+                                        data-image="{{ $category->image_url }}">
                                     {{ $category->name }}
                                 </option>
                             @endforeach
@@ -997,6 +1031,89 @@
         init();
     }
 })();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for brand select with images
+    $('.brand-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: contain;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: contain;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+
+    // Initialize Select2 for category select with images
+    $('.category-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+});
 </script>
 @endpush
 @endsection

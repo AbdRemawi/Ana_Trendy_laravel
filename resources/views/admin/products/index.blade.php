@@ -1,5 +1,35 @@
 @extends('layouts.dashboard')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 42px;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        line-height: 32px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+    }
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: #e0f2fe;
+    }
+    .select2-dropdown {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $pageTitle = __('admin.products_management');
@@ -56,6 +86,7 @@
             {{-- Brand Filter --}}
             <div>
                 <select name="brand"
+                        id="brand-filter-select"
                         class="w-full px-4 py-2
                                rounded-lg
                                border border-gray-200
@@ -65,7 +96,9 @@
                                bg-white">
                     <option value="">{{ __('admin.all_brands') }}</option>
                     @foreach($brands as $brand)
-                        <option value="{{ $brand->id }}" {{ request('brand') == $brand->id ? 'selected' : '' }}>
+                        <option value="{{ $brand->id }}"
+                                {{ request('brand') == $brand->id ? 'selected' : '' }}
+                                data-image="{{ $brand->logo_url }}">
                             {{ $brand->name }}
                         </option>
                     @endforeach
@@ -75,6 +108,7 @@
             {{-- Category Filter --}}
             <div>
                 <select name="category"
+                        id="category-filter-select"
                         class="w-full px-4 py-2
                                rounded-lg
                                border border-gray-200
@@ -84,7 +118,9 @@
                                bg-white">
                     <option value="">{{ __('admin.all_categories') }}</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                        <option value="{{ $category->id }}"
+                                {{ request('category') == $category->id ? 'selected' : '' }}
+                                data-image="{{ $category->image_url }}">
                             {{ $category->name }}
                         </option>
                     @endforeach
@@ -471,4 +507,89 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for brand filter with images
+    $('#brand-filter-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: contain;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: contain;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+
+    // Initialize Select2 for category filter with images
+    $('#category-filter-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+});
+</script>
+@endpush
 @endsection

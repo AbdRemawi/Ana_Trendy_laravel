@@ -1,5 +1,35 @@
 @extends('layouts.dashboard')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 42px;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        line-height: 32px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+    }
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: #e0f2fe;
+    }
+    .select2-dropdown {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $pageTitle = __('admin.create_product');
@@ -33,7 +63,9 @@
     <div class="lg:col-span-2">
         <form method="POST" action="{{ route('admin.products.store') }}"
               enctype="multipart/form-data"
-              class="space-y-6">
+              class="space-y-6"
+              data-i18n-validation-images-max="{{ Js::from(__('admin.validation_images_max')) }}"
+              data-i18n-primary="{{ Js::from(__('admin.primary')) }}">
             @csrf
 
             {{-- Basic Information Card --}}
@@ -80,7 +112,7 @@
                         <select
                             id="brand_id"
                             name="brand_id"
-                            class="w-full px-4 py-2.5
+                            class="brand-select w-full px-4 py-2.5
                                    rounded-lg
                                    border border-gray-200
                                    focus:ring-2 focus:ring-primary/20 focus:border-primary
@@ -92,7 +124,9 @@
                         >
                             <option value="">{{ __('admin.select_brand') }}</option>
                             @foreach($brands as $brand)
-                                <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                                <option value="{{ $brand->id }}"
+                                        {{ old('brand_id') == $brand->id ? 'selected' : '' }}
+                                        data-image="{{ $brand->logo_url }}">
                                     {{ $brand->name }}
                                 </option>
                             @endforeach
@@ -113,7 +147,7 @@
                         <select
                             id="category_id"
                             name="category_id"
-                            class="w-full px-4 py-2.5
+                            class="category-select w-full px-4 py-2.5
                                    rounded-lg
                                    border border-gray-200
                                    focus:ring-2 focus:ring-primary/20 focus:border-primary
@@ -125,7 +159,9 @@
                         >
                             <option value="">{{ __('admin.select_category') }}</option>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                <option value="{{ $category->id }}"
+                                        {{ old('category_id') == $category->id ? 'selected' : '' }}
+                                        data-image="{{ $category->image_url }}">
                                     {{ $category->name }}
                                 </option>
                             @endforeach
@@ -603,15 +639,15 @@
 
 @push('scripts')
 <script>
-window.ProductImageUploadI18n = {
-    validationImagesMax: {{ Js::from(__('admin.validation_images_max')) }},
-    primary: {{ Js::from(__('admin.primary')) }}
-};
-</script>
-
-<script>
 (function() {
     'use strict';
+
+    // Get i18n data from form data attributes
+    const form = document.querySelector('form[data-i18n-validation-images-max]');
+    const i18n = {
+        validationImagesMax: form ? form.dataset.i18nValidationImagesMax : '',
+        primary: form ? form.dataset.i18nPrimary : ''
+    };
 
     // State management
     const state = {
@@ -647,7 +683,7 @@ window.ProductImageUploadI18n = {
         const files = Array.from(event.target.files || []);
 
         if (files.length > 10) {
-            alert(window.ProductImageUploadI18n.validationImagesMax);
+            alert(i18n.validationImagesMax);
             elements.imageInput.value = '';
             resetState();
             return;
@@ -733,7 +769,7 @@ window.ProductImageUploadI18n = {
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                <span>${window.ProductImageUploadI18n.primary}</span>
+                <span>${i18n.primary}</span>
             `;
         } else {
             badge.className = 'absolute bottom-2 left-2 bg-gray-900/70 text-white text-xs px-2 py-1 rounded font-medium';
@@ -754,6 +790,89 @@ window.ProductImageUploadI18n = {
         init();
     }
 })();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for brand select with images
+    $('.brand-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: contain;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: contain;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+
+    // Initialize Select2 for category select with images
+    $('.category-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+});
 </script>
 @endpush
 @endsection

@@ -45,8 +45,11 @@ class InventoryTransactionController extends Controller
 
         $transactions = $query->latest()->paginate(20);
 
-        // Get filter options
+        // Get filter options with images
         $products = \App\Models\Product::active()
+            ->with(['images' => function ($query) {
+                $query->orderBy('is_primary', 'desc')->orderBy('sort_order');
+            }])
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -60,13 +63,21 @@ class InventoryTransactionController extends Controller
      * Show the form for creating a new inventory transaction.
      * Authorization is handled via route middleware.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $products = \App\Models\Product::active()
+            ->with(['images' => function ($query) {
+                $query->orderBy('is_primary', 'desc')->orderBy('sort_order');
+            }])
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('admin.inventory.create', compact('products'));
+        $selectedProduct = null;
+        if ($request->filled('product_id')) {
+            $selectedProduct = \App\Models\Product::find($request->product_id);
+        }
+
+        return view('admin.inventory.create', compact('products', 'selectedProduct'));
     }
 
     /**

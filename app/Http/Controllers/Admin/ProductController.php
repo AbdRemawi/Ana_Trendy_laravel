@@ -68,9 +68,9 @@ class ProductController extends Controller
 
         $products = $query->latest()->paginate(20);
 
-        // Get filter options
-        $brands = \App\Models\Brand::active()->orderBy('name')->get(['id', 'name']);
-        $categories = \App\Models\Category::active()->ordered()->get(['id', 'name']);
+        // Get filter options with images
+        $brands = \App\Models\Brand::active()->orderBy('name')->get(['id', 'name', 'logo']);
+        $categories = \App\Models\Category::active()->ordered()->get(['id', 'name', 'image']);
 
         return view('admin.products.index', compact(
             'products',
@@ -85,8 +85,8 @@ class ProductController extends Controller
      */
     public function create(): View
     {
-        $brands = \App\Models\Brand::active()->orderBy('name')->get(['id', 'name']);
-        $categories = \App\Models\Category::active()->ordered()->get(['id', 'name']);
+        $brands = \App\Models\Brand::active()->orderBy('name')->get(['id', 'name', 'logo']);
+        $categories = \App\Models\Category::active()->ordered()->get(['id', 'name', 'image']);
 
         return view('admin.products.create', compact(
             'brands',
@@ -172,8 +172,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product): View
     {
-        $brands = \App\Models\Brand::active()->orderBy('name')->get(['id', 'name']);
-        $categories = \App\Models\Category::active()->ordered()->get(['id', 'name']);
+        $brands = \App\Models\Brand::active()->orderBy('name')->get(['id', 'name', 'logo']);
+        $categories = \App\Models\Category::active()->ordered()->get(['id', 'name', 'image']);
 
         // Load images with their current state
         $product->load('images');

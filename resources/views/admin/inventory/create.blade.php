@@ -1,5 +1,35 @@
 @extends('layouts.dashboard')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 42px;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        line-height: 32px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+    }
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: #e0f2fe;
+    }
+    .select2-dropdown {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $pageTitle = __('admin.create_transaction');
@@ -40,26 +70,54 @@
                         {{ __('admin.product_name') }}
                         <span class="text-red-500">*</span>
                     </label>
-                    <select
-                        id="product_id"
-                        name="product_id"
-                        class="w-full px-4 py-2.5
-                               rounded-lg
-                               border border-gray-200
-                               focus:ring-2 focus:ring-primary/20 focus:border-primary
-                               transition-all duration-200
-                               text-sm
-                               bg-white
-                               {{ $errors->has('product_id') ? 'border-red-300' : '' }}"
-                        @if($errors->has('product_id')) aria-invalid="true" aria-describedby="product_id-error" @endif
-                    >
-                        <option value="">{{ __('admin.select_product') ?? 'Select Product' }}</option>
-                        @foreach($products as $prod)
-                            <option value="{{ $prod->id }}" {{ old('product_id') == $prod->id ? 'selected' : '' }}>
-                                {{ $prod->name }}
-                            </option>
-                        @endforeach
-                    </select>
+
+                    @if($selectedProduct)
+                        {{-- Display product as read-only when pre-selected --}}
+                        <input
+                            type="hidden"
+                            name="product_id"
+                            value="{{ $selectedProduct->id }}"
+                        />
+                        <div class="w-full px-4 py-2.5
+                                   rounded-lg
+                                   border border-gray-200
+                                   bg-gray-50
+                                   text-sm
+                                   text-gray-900">
+                            {{ $selectedProduct->name }}
+                        </div>
+                        <p class="mt-1.5 text-xs text-gray-500">
+                            {{ __('admin.product_locked') ?? 'Product is pre-selected and cannot be changed' }}
+                        </p>
+                    @else
+                        <select
+                            id="product_id"
+                            name="product_id"
+                            class="product-select w-full px-4 py-2.5
+                                   rounded-lg
+                                   border border-gray-200
+                                   focus:ring-2 focus:ring-primary/20 focus:border-primary
+                                   transition-all duration-200
+                                   text-sm
+                                   bg-white
+                                   {{ $errors->has('product_id') ? 'border-red-300' : '' }}"
+                            @if($errors->has('product_id')) aria-invalid="true" aria-describedby="product_id-error" @endif
+                        >
+                            <option value="">{{ __('admin.select_product') ?? 'Select Product' }}</option>
+                            @foreach($products as $prod)
+                                @php
+                                    $primaryImage = $prod->images->firstWhere('is_primary', true) ?? $prod->images->first();
+                                    $imageUrl = $primaryImage ? $primaryImage->image_url : null;
+                                @endphp
+                                <option value="{{ $prod->id }}"
+                                        {{ old('product_id') == $prod->id ? 'selected' : '' }}
+                                        data-image="{{ $imageUrl }}">
+                                    {{ $prod->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
+
                     @error('product_id')
                         <p id="product_id-error" class="mt-1.5 text-sm text-red-600">
                             {{ $message }}
@@ -291,4 +349,50 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for product select with images
+    $('.product-select').select2({
+        templateResult: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-8 h-8 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        templateSelection: function(state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            const imageUrl = $(state.element).data('image');
+            if (imageUrl) {
+                return $(
+                    '<div class="flex items-center gap-2">' +
+                        '<img src="' + imageUrl + '" class="w-6 h-6 object-cover rounded" style="object-fit: cover;" />' +
+                        '<span>' + state.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            return state.text;
+        },
+        width: '100%'
+    });
+});
+</script>
+@endpush
 @endsection
