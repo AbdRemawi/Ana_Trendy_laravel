@@ -95,15 +95,12 @@ class OrderCalculationService
     public function calculateWithDelivery(
         array $orderTotals,
         float $realDeliveryFee,
-        float $displayDeliveryFee,
         ?float $freeDeliveryDiscount
     ): array {
         $actualRealFee = $freeDeliveryDiscount !== null ? 0 : $realDeliveryFee;
-        $actualDisplayFee = $freeDeliveryDiscount !== null ? 0 : $displayDeliveryFee;
 
         return [
             'real_delivery_fee' => $actualRealFee,
-            'display_delivery_fee' => $actualDisplayFee,
             'actual_charge' => round(
                 $orderTotals['subtotal_products']
                 - $orderTotals['coupon_discount_amount']
@@ -113,7 +110,7 @@ class OrderCalculationService
             'total_price_for_customer' => round(
                 $orderTotals['subtotal_products']
                 - $orderTotals['coupon_discount_amount']
-                + $actualDisplayFee,
+                + $actualRealFee,
                 2
             ),
         ];

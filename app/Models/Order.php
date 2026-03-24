@@ -15,7 +15,6 @@ class Order extends Model
         'city_id',
         'address',
         'delivery_courier_id',
-        'display_delivery_fee',
         'real_delivery_fee',
         'subtotal_products',
         'coupon_id',
@@ -30,7 +29,6 @@ class Order extends Model
     protected function casts(): array
     {
         return [
-            'display_delivery_fee' => 'decimal:3',
             'real_delivery_fee' => 'decimal:3',
             'subtotal_products' => 'decimal:2',
             'coupon_discount_amount' => 'decimal:2',

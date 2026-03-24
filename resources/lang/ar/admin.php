@@ -815,7 +815,6 @@ return [
     'subtotal_products' => 'إجمالي المنتجات',
     'delivery_fee' => 'رسوم التوصيل',
     'real_delivery_fee' => 'سعر التوصيل الحقيقي',
-    'display_delivery_fee' => 'سعر التوصيل المعروض',
     'coupon_discount' => 'خصم الكوبون',
     'free_delivery_discount' => 'توصيل مجاني',
     'actual_charge' => 'القيمة الفعلية',

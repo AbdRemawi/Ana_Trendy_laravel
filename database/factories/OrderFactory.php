@@ -59,12 +59,10 @@ class OrderFactory extends Factory
         }
 
         // Delivery fees
-        $displayDeliveryFee = fake()->randomFloat(3, 3, 10);
-        $realDeliveryFee = $displayDeliveryFee * fake()->randomFloat(1, 0.6, 0.9);
-        $realDeliveryFee = round($realDeliveryFee, 3);
+        $realDeliveryFee = fake()->randomFloat(3, 3, 10);
 
         // Calculate final charge
-        $actualCharge = $subtotalProducts + $displayDeliveryFee - $couponDiscountAmount - $freeDeliveryDiscount;
+        $actualCharge = $subtotalProducts + $realDeliveryFee - $couponDiscountAmount - $freeDeliveryDiscount;
         $totalPriceForCustomer = max($actualCharge, 0);
 
         // Generate order number
@@ -89,7 +87,6 @@ class OrderFactory extends Factory
             'city_id' => $city?->id ?? \App\Models\City::factory(),
             'address' => fake()->streetAddress() . ', ' . fake()->secondaryAddress(),
             'delivery_courier_id' => fake()->boolean(80) ? $courier?->id : null, // 80% have courier
-            'display_delivery_fee' => $displayDeliveryFee,
             'real_delivery_fee' => $realDeliveryFee,
             'subtotal_products' => round($subtotalProducts, 2),
             'coupon_id' => $coupon?->id,

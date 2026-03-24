@@ -120,7 +120,6 @@ class DashboardController extends Controller
             ->selectRaw('
                 SUM(order_items.total_price) as product_revenue,
                 SUM(order_items.unit_cost_price * order_items.quantity) as product_cost,
-                SUM(orders.display_delivery_fee) as delivery_revenue,
                 SUM(orders.real_delivery_fee) as delivery_cost
             ')
             ->first();
@@ -130,7 +129,7 @@ class DashboardController extends Controller
         }
 
         $productProfit = $result->product_revenue - $result->product_cost;
-        $deliveryProfit = $result->delivery_revenue - $result->delivery_cost;
+        $deliveryProfit = 0 - $result->delivery_cost;
 
         return (float) ($productProfit + $deliveryProfit);
     }
@@ -203,7 +202,7 @@ class DashboardController extends Controller
             ->selectRaw('
                 SUM(order_items.total_price) as product_revenue,
                 SUM(order_items.unit_cost_price * order_items.quantity) as product_cost,
-                SUM(orders.display_delivery_fee) as delivery_revenue,
+                0 as delivery_revenue,
                 SUM(orders.real_delivery_fee) as delivery_cost,
                 SUM(orders.coupon_discount_amount) as product_discounts,
                 COALESCE(SUM(orders.free_delivery_discount), 0) as delivery_discounts
@@ -464,9 +463,9 @@ class DashboardController extends Controller
                 dc.id,
                 dc.name as courier_name,
                 COUNT(o.id) as order_count,
-                SUM(o.display_delivery_fee) as revenue,
+                0 as revenue,
                 SUM(o.real_delivery_fee) as cost,
-                SUM(o.display_delivery_fee - o.real_delivery_fee) as profit
+                0 - SUM(o.real_delivery_fee) as profit
             ')
             ->groupBy('dc.id', 'dc.name')
             ->orderByDesc('profit')

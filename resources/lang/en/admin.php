@@ -817,7 +817,6 @@ return [
     'subtotal_products' => 'Products Subtotal',
     'delivery_fee' => 'Delivery Fee',
     'real_delivery_fee' => 'Real Delivery Fee',
-    'display_delivery_fee' => 'Display Delivery Fee',
     'coupon_discount' => 'Coupon Discount',
     'free_delivery_discount' => 'Free Delivery',
     'actual_charge' => 'Actual Charge',

@@ -86,7 +86,6 @@ class CheckoutController extends Controller
                 'city_id' => $request->cityId,
                 'address' => $request->address,
                 'delivery_courier_id' => null,
-                'display_delivery_fee' => $request->shipping,
                 'real_delivery_fee' => $request->shipping,
                 'subtotal_products' => $request->subtotal,
                 'coupon_id' => $coupon?->id,

@@ -20,7 +20,6 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('delivery_couriers')
                 ->nullOnDelete();
-            $table->decimal('display_delivery_fee', 10, 3)->nullable();
             $table->decimal('real_delivery_fee', 10, 3)->nullable();
             $table->decimal('subtotal_products', 10, 2);
             $table->foreignId('coupon_id')

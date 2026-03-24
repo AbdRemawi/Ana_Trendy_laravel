@@ -71,7 +71,6 @@ class OrderStatusService
         $order->update([
             'delivery_courier_id' => $courierId,
             'real_delivery_fee' => $deliveryFee,
-            'display_delivery_fee' => $deliveryFee,
             'actual_charge' => round(
                 $order->subtotal_products
                 - $order->coupon_discount_amount

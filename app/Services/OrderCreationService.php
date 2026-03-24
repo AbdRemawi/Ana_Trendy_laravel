@@ -68,7 +68,6 @@ class OrderCreationService
                 'city_id' => $data['city_id'],
                 'address' => $data['address'],
                 'delivery_courier_id' => null,
-                'display_delivery_fee' => null,
                 'real_delivery_fee' => null,
                 'subtotal_products' => $orderTotals['subtotal_products'],
                 'coupon_id' => $coupon?->id,
