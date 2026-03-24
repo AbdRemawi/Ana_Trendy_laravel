@@ -66,23 +66,22 @@ class OrderStatusService
         $hasFreeDelivery = $order->coupon
             && $order->coupon->type === CouponType::FREE_DELIVERY->value;
 
-        $realFee = $hasFreeDelivery ? 0 : $fee->real_fee_amount;
-        $displayFee = $hasFreeDelivery ? 0 : $fee->display_fee_amount;
+        $deliveryFee = $hasFreeDelivery ? 0 : $fee->real_fee_amount;
 
         $order->update([
             'delivery_courier_id' => $courierId,
-            'real_delivery_fee' => $realFee,
-            'display_delivery_fee' => $displayFee,
+            'real_delivery_fee' => $deliveryFee,
+            'display_delivery_fee' => $deliveryFee,
             'actual_charge' => round(
                 $order->subtotal_products
                 - $order->coupon_discount_amount
-                + $realFee,
+                + $deliveryFee,
                 2
             ),
             'total_price_for_customer' => round(
                 $order->subtotal_products
                 - $order->coupon_discount_amount
-                + $displayFee,
+                + $deliveryFee,
                 2
             ),
             'status' => OrderStatus::WITH_DELIVERY_COMPANY->value,

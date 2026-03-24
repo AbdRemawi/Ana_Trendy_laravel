@@ -85,7 +85,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '5.500',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -97,7 +96,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
             'delivery_courier_id' => $courier->id,
             'city_id' => $city->id,
             'real_fee_amount' => '5.500',
-            'display_fee_amount' => '7.000',
             'currency' => 'JOD',
         ]);
     }
@@ -113,7 +111,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '3.250',
-                'display_fee_amount' => '5.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -138,7 +135,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '5.500',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -156,7 +152,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
             'delivery_courier_id' => $courier->id,
             'city_id' => $city->id,
             'real_fee_amount' => '5.500',
-            'display_fee_amount' => '7.000',
         ]);
 
         $response = $this->actingAs($this->superAdmin)
@@ -164,7 +159,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '6.000',
-                'display_fee_amount' => '8.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -182,7 +176,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => '',
                 'city_id' => $city->id,
                 'real_fee_amount' => '5.500',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -200,7 +193,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => '',
                 'real_fee_amount' => '5.500',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -219,31 +211,11 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
 
         $response->assertSessionHasErrors(['real_fee_amount']);
-    }
-
-    /** @test */
-    public function display_fee_amount_is_required(): void
-    {
-        $courier = DeliveryCourier::factory()->create(['is_active' => true]);
-        $city = City::factory()->create(['is_active' => true]);
-
-        $response = $this->actingAs($this->superAdmin)
-            ->post(route('admin.delivery-courier-fees.store'), [
-                'delivery_courier_id' => $courier->id,
-                'city_id' => $city->id,
-                'real_fee_amount' => '5.500',
-                'display_fee_amount' => '',
-                'currency' => 'JOD',
-                'is_active' => '1',
-            ]);
-
-        $response->assertSessionHasErrors(['display_fee_amount']);
     }
 
     /** @test */
@@ -257,7 +229,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '5.500',
-                'display_fee_amount' => '7.000',
                 'currency' => '',
                 'is_active' => '1',
             ]);
@@ -276,7 +247,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '5.5', // Missing decimal places
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -295,7 +265,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => 'invalid',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -314,7 +283,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '5.500',
-                'display_fee_amount' => '7.000',
                 'currency' => 'JOD',
                 'is_active' => '0',
             ]);
@@ -336,7 +304,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
             'delivery_courier_id' => $courier->id,
             'city_id' => $city->id,
             'real_fee_amount' => '5.500',
-            'display_fee_amount' => '7.000',
         ]);
 
         $response = $this->actingAs($this->superAdmin)
@@ -344,7 +311,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '6.000',
-                'display_fee_amount' => '8.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -355,7 +321,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
         $this->assertDatabaseHas('delivery_courier_fees', [
             'id' => $fee->id,
             'real_fee_amount' => '6.000',
-            'display_fee_amount' => '8.000',
         ]);
     }
 
@@ -369,7 +334,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
             'delivery_courier_id' => $courier->id,
             'city_id' => $city->id,
             'real_fee_amount' => '5.500',
-            'display_fee_amount' => '7.000',
         ]);
 
         $originalRealFee = $fee->real_fee_amount;
@@ -379,7 +343,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
                 'delivery_courier_id' => $courier->id,
                 'city_id' => $city->id,
                 'real_fee_amount' => '6.000',
-                'display_fee_amount' => '8.000',
                 'currency' => 'JOD',
                 'is_active' => '1',
             ]);
@@ -492,7 +455,6 @@ class DeliveryCourierFeeManagementTest extends TestCase
             'delivery_courier_id' => $courier->id,
             'city_id' => $city->id,
             'real_fee_amount' => '5.500',
-            'display_fee_amount' => '7.000',
         ]);
 
         $user = User::factory()->create();

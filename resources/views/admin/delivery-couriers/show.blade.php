@@ -141,11 +141,6 @@
                                 </th>
                                 <th class="px-4 py-2 {{ $direction === 'rtl' ? 'text-right' : 'text-left' }}">
                                     <span class="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        {{ __('admin.display_fee_amount') }}
-                                    </span>
-                                </th>
-                                <th class="px-4 py-2 {{ $direction === 'rtl' ? 'text-right' : 'text-left' }}">
-                                    <span class="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         {{ __('admin.currency') }}
                                     </span>
                                 </th>
@@ -167,11 +162,6 @@
                                     <td class="px-4 py-3">
                                         <div class="text-sm text-gray-600">
                                             {{ number_format($fee->real_fee_amount, 3) }}
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="text-sm text-gray-600">
-                                            {{ number_format($fee->display_fee_amount, 3) }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">

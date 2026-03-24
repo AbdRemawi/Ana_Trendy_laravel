@@ -20,7 +20,6 @@ return new class extends Migration
                   ->constrained('cities')
                   ->onDelete('cascade');
             $table->decimal('real_fee_amount', 10, 3);
-            $table->decimal('display_fee_amount', 10, 3);
             $table->string('currency', 3)->default('JOD');
             $table->boolean('is_active')->default(true);
             $table->timestamps();

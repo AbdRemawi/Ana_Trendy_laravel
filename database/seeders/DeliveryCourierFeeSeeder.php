@@ -49,7 +49,6 @@ class DeliveryCourierFeeSeeder extends Seeder
                 };
 
                 $realFee = $baseFee * $cityMultiplier;
-                $displayFee = $realFee * 1.2; // Display fee is 20% higher for profit
 
                 DeliveryCourierFee::firstOrCreate(
                     [
@@ -58,7 +57,6 @@ class DeliveryCourierFeeSeeder extends Seeder
                     ],
                     [
                         'real_fee_amount' => round($realFee, 3),
-                        'display_fee_amount' => round($displayFee, 3),
                         'currency' => 'JOD',
                         'is_active' => true,
                     ]

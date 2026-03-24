@@ -35,7 +35,6 @@ class UpdateDeliveryCourierFeeRequest extends FormRequest
      * Delivery Courier ID: Required, must exist in delivery_couriers table, must be active
      * City ID: Required, must exist in cities table, must be active
      * Real Fee Amount: Required, decimal, >= 0, max 10 digits with 3 decimal places
-     * Display Fee Amount: Required, decimal, >= 0, max 10 digits with 3 decimal places
      * Currency: Required, max 3 characters (ISO 4217 currency code)
      * Is Active: Required, boolean
      *
@@ -61,13 +60,6 @@ class UpdateDeliveryCourierFeeRequest extends FormRequest
                 }),
             ],
             'real_fee_amount' => [
-                'required',
-                'numeric',
-                'decimal:0,3',
-                'min:0',
-                'max:99999999.999',
-            ],
-            'display_fee_amount' => [
                 'required',
                 'numeric',
                 'decimal:0,3',
@@ -105,11 +97,6 @@ class UpdateDeliveryCourierFeeRequest extends FormRequest
             'real_fee_amount.decimal' => __('admin.validation_real_fee_amount_decimal'),
             'real_fee_amount.min' => __('admin.validation_real_fee_amount_min'),
             'real_fee_amount.max' => __('admin.validation_real_fee_amount_max'),
-            'display_fee_amount.required' => __('admin.validation_display_fee_amount_required'),
-            'display_fee_amount.numeric' => __('admin.validation_display_fee_amount_numeric'),
-            'display_fee_amount.decimal' => __('admin.validation_display_fee_amount_decimal'),
-            'display_fee_amount.min' => __('admin.validation_display_fee_amount_min'),
-            'display_fee_amount.max' => __('admin.validation_display_fee_amount_max'),
             'currency.required' => __('admin.validation_currency_required'),
             'currency.max' => __('admin.validation_currency_max'),
             'is_active.required' => __('admin.validation_is_active_required'),
@@ -155,7 +142,6 @@ class UpdateDeliveryCourierFeeRequest extends FormRequest
             'delivery_courier_id' => __('admin.courier'),
             'city_id' => __('admin.city'),
             'real_fee_amount' => __('admin.real_fee_amount'),
-            'display_fee_amount' => __('admin.display_fee_amount'),
             'currency' => __('admin.currency'),
             'is_active' => __('admin.fee_status'),
         ];

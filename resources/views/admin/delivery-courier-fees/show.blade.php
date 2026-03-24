@@ -71,38 +71,8 @@
                     <p class="text-sm font-medium text-gray-500 mb-1">
                         {{ __('admin.real_fee_amount') }}
                     </p>
-                    <p class="text-sm text-gray-900 font-mono">
-                        {{ number_format($fee->real_fee_amount, 3) }} {{ $fee->currency }}
-                    </p>
-                </div>
-
-                {{-- Display Fee Amount --}}
-                <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">
-                        {{ __('admin.display_fee_amount') }}
-                    </p>
                     <p class="text-lg font-semibold text-gray-900 font-mono">
-                        {{ number_format($fee->display_fee_amount, 3) }} {{ $fee->currency }}
-                    </p>
-                </div>
-
-                {{-- Profit Amount --}}
-                <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">
-                        {{ __('admin.profit_amount') }}
-                    </p>
-                    <p class="text-sm text-green-600 font-mono">
-                        +{{ number_format($fee->profit_amount, 3) }} {{ $fee->currency }}
-                    </p>
-                </div>
-
-                {{-- Profit Margin --}}
-                <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">
-                        {{ __('admin.profit_margin') }}
-                    </p>
-                    <p class="text-sm text-green-600 font-mono">
-                        {{ number_format($fee->profit_margin, 2) }}%
+                        {{ number_format($fee->real_fee_amount, 3) }} {{ $fee->currency }}
                     </p>
                 </div>
 

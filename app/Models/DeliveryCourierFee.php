@@ -16,7 +16,6 @@ class DeliveryCourierFee extends Model
         'delivery_courier_id',
         'city_id',
         'real_fee_amount',
-        'display_fee_amount',
         'currency',
         'is_active',
     ];
@@ -28,7 +27,6 @@ class DeliveryCourierFee extends Model
      */
     protected $casts = [
         'real_fee_amount' => 'decimal:3',
-        'display_fee_amount' => 'decimal:3',
         'is_active' => 'boolean',
     ];
 
@@ -63,25 +61,5 @@ class DeliveryCourierFee extends Model
     {
         return $query->where('delivery_courier_id', $courierId)
                     ->where('city_id', $cityId);
-    }
-
-    /**
-     * Calculate profit margin percentage.
-     */
-    public function getProfitMarginAttribute(): float
-    {
-        if ($this->real_fee_amount == 0) {
-            return 0;
-        }
-
-        return (($this->display_fee_amount - $this->real_fee_amount) / $this->real_fee_amount) * 100;
-    }
-
-    /**
-     * Calculate profit amount.
-     */
-    public function getProfitAmountAttribute(): float
-    {
-        return $this->display_fee_amount - $this->real_fee_amount;
     }
 }
