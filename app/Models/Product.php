@@ -37,6 +37,7 @@ class Product extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'sku',
         'brand_id',
         'category_id',
         'name',

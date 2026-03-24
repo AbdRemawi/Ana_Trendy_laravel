@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('sku')->unique();
             $table->foreignId('brand_id')
                 ->constrained('brands')
                 ->cascadeOnDelete();
@@ -22,8 +23,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->enum('size', ['S', 'M', 'L', 'XL', 'XXL']);
-            $table->enum('gender', ['male', 'female', 'unisex']);
+            $table->enum('size', ['S', 'M', 'L', 'XL', 'XXL'])->nullable();
+            $table->enum('gender', ['male', 'female', 'unisex'])->default('female');
             $table->decimal('cost_price', 10, 2);
             $table->decimal('sale_price', 10, 2);
             $table->decimal('offer_price', 10, 2)->nullable();

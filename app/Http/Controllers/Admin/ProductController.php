@@ -108,13 +108,21 @@ class ProductController extends Controller
         $initialQuantity = (int) $validated['initial_quantity'];
 
         DB::transaction(function () use ($validated, $images, $initialQuantity, &$product) {
+            // Generate unique SKU
+            $sku = 'SKU-' . str_pad(Product::max('id') + 1, 6, '0', STR_PAD_LEFT);
+            $counter = 1;
+            while (Product::where('sku', $sku)->exists()) {
+                $sku = 'SKU-' . str_pad(Product::max('id') + 1, 6, '0', STR_PAD_LEFT) . '-' . $counter++;
+            }
+
             // Create the product
             $product = Product::create([
+                'sku' => $sku,
                 'brand_id' => $validated['brand_id'],
                 'category_id' => $validated['category_id'],
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
-                'size' => $validated['size'],
+                'size' => !empty($validated['size']) ? $validated['size'] : null,
                 'gender' => $validated['gender'],
                 'cost_price' => $validated['cost_price'],
                 'sale_price' => $validated['sale_price'],

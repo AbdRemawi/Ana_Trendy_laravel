@@ -38,6 +38,12 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'sku' => [
+                'nullable',
+                'string',
+                'max:50',
+                'unique:products,sku',
+            ],
             'brand_id' => [
                 'required',
                 'integer',
@@ -59,7 +65,7 @@ class StoreProductRequest extends FormRequest
                 'max:5000',
             ],
             'size' => [
-                'required',
+                'nullable',
                 'in:S,M,L,XL,XXL',
             ],
             'gender' => [
@@ -137,6 +143,9 @@ class StoreProductRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'sku.unique' => __('admin.validation_sku_unique'),
+            'sku.max' => __('admin.validation_sku_max'),
+
             'brand_id.required' => __('admin.validation_brand_required'),
             'brand_id.exists' => __('admin.validation_brand_exists'),
 
@@ -148,7 +157,6 @@ class StoreProductRequest extends FormRequest
 
             'description.max' => __('admin.validation_description_max'),
 
-            'size.required' => __('admin.validation_size_required'),
             'size.in' => __('admin.validation_size_in'),
 
             'gender.required' => __('admin.validation_gender_required'),
@@ -197,6 +205,7 @@ class StoreProductRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'sku' => __('admin.attribute_sku'),
             'brand_id' => __('admin.attribute_brand'),
             'category_id' => __('admin.attribute_category'),
             'name' => __('admin.attribute_product_name'),

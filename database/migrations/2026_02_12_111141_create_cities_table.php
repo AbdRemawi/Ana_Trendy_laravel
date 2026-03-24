@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('is_active')->default(true);
+            $table->decimal('default_delivery_fee', 8, 3)->default(0);
             $table->timestamps();
 
             // Unique constraint for active city names

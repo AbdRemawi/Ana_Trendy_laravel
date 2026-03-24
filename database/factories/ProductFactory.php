@@ -19,6 +19,7 @@ class ProductFactory extends Factory
     {
         $name = fake()->words(3, true);
         $slug = Str::slug($name) . '-' . fake()->unique()->numerify('####');
+        $sku = 'SKU-' . fake()->unique()->numerify('######');
         $costPrice = fake()->randomFloat(2, 10, 500);
         $salePrice = $costPrice * fake()->randomFloat(1, 1.2, 2.5);
         $salePrice = round($salePrice, 2);
@@ -26,13 +27,14 @@ class ProductFactory extends Factory
         $offerPrice = $hasOffer ? round($salePrice * fake()->randomFloat(1, 0.7, 0.95), 2) : null;
 
         return [
+            'sku' => $sku,
             'brand_id' => \App\Models\Brand::inRandomOrder()->first()->id ?? \App\Models\Brand::factory(),
             'category_id' => \App\Models\Category::inRandomOrder()->first()->id ?? \App\Models\Category::factory(),
             'name' => $name,
             'slug' => $slug,
             'description' => fake()->optional()->paragraph(),
-            'size' => fake()->randomElement(['S', 'MD', 'LG']),
-            'gender' => fake()->randomElement(['male', 'female', 'unisex']),
+            'size' => fake()->randomElement([null, null, 'S', 'M', 'L', 'XL', 'XXL']), // More likely to be null
+            'gender' => 'female',
             'cost_price' => $costPrice,
             'sale_price' => $salePrice,
             'offer_price' => $offerPrice,

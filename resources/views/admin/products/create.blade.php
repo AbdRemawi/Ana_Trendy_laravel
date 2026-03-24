@@ -33,7 +33,6 @@
 @section('content')
 @php
     $pageTitle = __('admin.create_product');
-    $sizes = \App\Models\Product::getAvailableSizes();
 @endphp
 
 {{-- Page Header --}}
@@ -287,41 +286,11 @@
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {{-- Size --}}
-                    <div>
-                        <label for="size" class="block text-sm font-medium text-gray-700 mb-1.5">
-                            {{ __('admin.product_size') }}
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <select
-                            id="size"
-                            name="size"
-                            class="w-full px-4 py-2.5
-                                   rounded-lg
-                                   border border-gray-200
-                                   focus:ring-2 focus:ring-primary/20 focus:border-primary
-                                   transition-all duration-200
-                                   text-sm
-                                   bg-white
-                                   {{ $errors->has('size') ? 'border-red-300' : '' }}"
-                            @if($errors->has('size')) aria-invalid="true" aria-describedby="size-error" @endif
-                        >
-                            <option value="">{{ __('admin.select_size') }}</option>
-                            @foreach($sizes as $sizeValue => $sizeLabel)
-                                <option value="{{ $sizeValue }}" {{ old('size') == $sizeValue ? 'selected' : '' }}>
-                                    {{ $sizeLabel }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('size')
-                            <p id="size-error" class="mt-1.5 text-sm text-red-600">
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
+                    {{-- Size - Hidden field (nullable) --}}
+                    <input type="hidden" name="size" value="">
 
                     {{-- Gender --}}
-                    <div>
+                    <div class="md:col-span-2">
                         <label for="gender" class="block text-sm font-medium text-gray-700 mb-1.5">
                             {{ __('admin.product_gender') }}
                             <span class="text-red-500">*</span>
@@ -343,7 +312,7 @@
                             <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>
                                 {{ __('admin.gender_male') }}
                             </option>
-                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>
+                            <option value="female" {{ old('gender', 'female') == 'female' ? 'selected' : '' }}>
                                 {{ __('admin.gender_female') }}
                             </option>
                             <option value="unisex" {{ old('gender') == 'unisex' ? 'selected' : '' }}>
@@ -540,10 +509,10 @@
                             type="number"
                             id="initial_quantity"
                             name="initial_quantity"
-                            value="{{ old('initial_quantity', 0) }}"
+                            value="{{ old('initial_quantity', 1) }}"
                             min="0"
                             step="1"
-                            placeholder="0"
+                            placeholder="1"
                             class="w-full px-4 py-2.5
                                    rounded-lg
                                    border border-gray-200
