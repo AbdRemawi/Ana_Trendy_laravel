@@ -56,9 +56,6 @@ return new class extends Migration
 
             // Index for status filtering
             $table->index('status', 'idx_users_status');
-
-            // Index for commission_rate (affiliate reports)
-            $table->index('commission_rate', 'idx_users_commission_rate');
         });
 
         // Product images table - optimize for primary image queries
@@ -105,7 +102,6 @@ return new class extends Migration
             $table->dropIndex('idx_users_mobile');
             $table->dropIndex('idx_users_email');
             $table->dropIndex('idx_users_status');
-            $table->dropIndex('idx_users_commission_rate');
         });
 
         Schema::table('product_images', function (Blueprint $table) {

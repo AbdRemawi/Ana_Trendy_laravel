@@ -241,34 +241,6 @@
                     @enderror
                 </div>
 
-                {{-- Commission Rate (conditional field, shown for affiliates) --}}
-                <div class="mb-5 hidden" id="commission-rate-field" aria-hidden="true">
-                    <label for="commission_rate" class="block text-sm font-medium text-gray-700 mb-1.5">
-                        {{ __('admin.commission_rate') }}
-                        <span class="text-gray-400 text-xs">{{ __('admin.optional') }}</span>
-                    </label>
-                    <input
-                        type="number"
-                        id="commission_rate"
-                        name="commission_rate"
-                        value="{{ old('commission_rate') }}"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        placeholder="0.00"
-                        class="w-full px-3 sm:px-4 py-2.5
-                               rounded-lg
-                               border border-gray-200
-                               focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none
-                               transition-all duration-200
-                               text-sm"
-                        aria-describedby="commission-rate-help"
-                    >
-                    <p class="mt-1.5 text-xs text-gray-500" id="commission-rate-help">
-                        {{ __('admin.commission_rate_help') }}
-                    </p>
-                </div>
-
                 {{-- Submit Buttons --}}
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
                     <button

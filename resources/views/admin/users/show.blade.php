@@ -176,17 +176,6 @@
                             {{ $user->created_at->format('Y M d H:i') }}
                         </p>
                     </div>
-
-                    @if($userRole === 'affiliate' && $user->commission_rate !== null)
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('admin.commission_rate') ?? 'Commission Rate' }}
-                        </label>
-                        <p class="mt-1 text-sm text-gray-900">
-                            {{ $user->commission_rate }}%
-                        </p>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>

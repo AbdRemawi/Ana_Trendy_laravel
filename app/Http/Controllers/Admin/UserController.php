@@ -104,18 +104,10 @@ class UserController extends Controller
             'mobile' => $validated['mobile'],
             'password' => $validated['password'], // Hashed via model cast
             'status' => $validated['status'],
-            'commission_rate' => $validated['commission_rate'] ?? null,
         ]);
 
         // Assign single role using sync (syncRoles handles transactions internally)
         $user->syncRoles([$validated['role']]);
-
-        // Generate affiliate coupon if role is affiliate
-        if ($validated['role'] === 'affiliate' && !$user->coupon_code) {
-            $user->update([
-                'coupon_code' => $this->generateUniqueCouponCode(),
-            ]);
-        }
 
         return redirect()
             ->route('admin.users.index')
@@ -170,7 +162,6 @@ class UserController extends Controller
             'email' => $validated['email'] ?? null,
             'mobile' => $validated['mobile'],
             'status' => $validated['status'],
-            'commission_rate' => $validated['commission_rate'] ?? null,
         ];
 
         // Only update password if provided
@@ -182,13 +173,6 @@ class UserController extends Controller
 
         // Sync role (syncRoles handles transactions internally)
         $user->syncRoles([$validated['role']]);
-
-        // Generate affiliate coupon if role changed to affiliate
-        if ($validated['role'] === 'affiliate' && !$user->coupon_code) {
-            $user->update([
-                'coupon_code' => $this->generateUniqueCouponCode(),
-            ]);
-        }
 
         return redirect()
             ->route('admin.users.index')
@@ -226,20 +210,5 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', __('admin.user_deleted_successfully', ['name' => $userName]));
-    }
-
-    /**
-     * Generate a unique affiliate coupon code.
-     *
-     * Creates a random coupon code and ensures uniqueness.
-     * Format: AFF-XXXXXXXX (8 random uppercase hex characters)
-     */
-    protected function generateUniqueCouponCode(): string
-    {
-        do {
-            $code = 'AFF-'.strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
-        } while (User::where('coupon_code', $code)->exists());
-
-        return $code;
     }
 }

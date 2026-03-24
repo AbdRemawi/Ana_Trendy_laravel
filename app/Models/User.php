@@ -29,9 +29,6 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
-        'coupon_code',
-        'commission_rate',
-        'total_earnings',
     ];
 
     /**
@@ -91,35 +88,5 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
-    }
-
-    /**
-     * Get user's affiliate referral coupon code.
-     *
-     * @return string|null
-     */
-    public function getReferralCoupon(): ?string
-    {
-        return $this->coupon_code;
-    }
-
-    /**
-     * Get user's commission rate.
-     *
-     * @return float
-     */
-    public function getCommissionRate(): float
-    {
-        return (float) $this->commission_rate;
-    }
-
-    /**
-     * Get user's total earnings.
-     *
-     * @return float
-     */
-    public function getTotalEarnings(): float
-    {
-        return (float) $this->total_earnings;
     }
 }

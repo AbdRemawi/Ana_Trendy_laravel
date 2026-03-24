@@ -70,13 +70,6 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'in:active,inactive,suspended',
             ],
-            'commission_rate' => [
-                'nullable',
-                'required_if:role,affiliate',
-                'numeric',
-                'min:0',
-                'max:100',
-            ],
         ];
     }
 
@@ -108,10 +101,6 @@ class StoreUserRequest extends FormRequest
 
             'status.required' => __('admin.validation_status_required'),
             'status.in' => __('admin.validation_status_in'),
-
-            'commission_rate.numeric' => __('admin.validation_commission_numeric'),
-            'commission_rate.min' => __('admin.validation_commission_min'),
-            'commission_rate.max' => __('admin.validation_commission_max'),
         ];
     }
 
@@ -129,7 +118,6 @@ class StoreUserRequest extends FormRequest
             'password' => 'password',
             'role' => 'role',
             'status' => 'status',
-            'commission_rate' => 'commission rate',
         ];
     }
 }
