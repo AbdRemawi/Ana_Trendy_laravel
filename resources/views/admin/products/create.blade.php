@@ -20,7 +20,12 @@
         padding: 8px 12px;
     }
     .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background: #e0f2fe;
+        background: #0d9488 !important;
+        color: white !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+        background: #0f766e !important;
+        color: white !important;
     }
     .select2-dropdown {
         border: 1px solid #e5e7eb;
@@ -66,6 +71,8 @@
               data-i18n-validation-images-max="{{ Js::from(__('admin.validation_images_max')) }}"
               data-i18n-primary="{{ Js::from(__('admin.primary')) }}">
             @csrf
+            {{-- Hidden input to store primary image index --}}
+            <input type="hidden" name="primary_image_index" id="primary_image_index" value="0">
 
             {{-- Basic Information Card --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -209,7 +216,7 @@
                             {{ __('admin.product_images') }}
                         </h2>
                         <p class="mt-1 text-sm text-gray-500">
-                            {{ __('admin.primary_image_notice') }}
+                            {{ __('admin.select_primary_image_help') }}
                         </p>
                     </div>
                     <span class="text-red-500">*</span>
@@ -595,7 +602,7 @@
                 </div>
                 <div>
                     <strong class="text-gray-900">{{ __('admin.product_images') }}:</strong>
-                    <p>{{ __('admin.upload_images') }}. {{ __('admin.primary_image_notice') }}</p>
+                    <p>{{ __('admin.upload_images') }}. {{ __('admin.select_primary_image_help') }}</p>
                 </div>
                 <div>
                     <strong class="text-gray-900">{{ __('admin.prices') }}:</strong>
@@ -621,7 +628,8 @@
     // State management
     const state = {
         uploadedFiles: [],
-        imagesLoadedCount: 0
+        imagesLoadedCount: 0,
+        primaryImageIndex: 0
     };
 
     // DOM elements cache
@@ -629,7 +637,8 @@
         imageInput: null,
         previewContainer: null,
         previewGrid: null,
-        noImagesMessage: null
+        noImagesMessage: null,
+        primaryImageIndexInput: null
     };
 
     // Initialize on DOM ready
@@ -638,6 +647,7 @@
         elements.previewContainer = document.getElementById('image-preview-container');
         elements.previewGrid = document.getElementById('image-preview-grid');
         elements.noImagesMessage = document.getElementById('no-images-message');
+        elements.primaryImageIndexInput = document.getElementById('primary_image_index');
 
         if (!elements.imageInput || !elements.previewContainer || !elements.previewGrid) {
             console.error('Required DOM elements not found');
@@ -673,6 +683,10 @@
     function resetState() {
         state.uploadedFiles = [];
         state.imagesLoadedCount = 0;
+        state.primaryImageIndex = 0;
+        if (elements.primaryImageIndexInput) {
+            elements.primaryImageIndexInput.value = '0';
+        }
         elements.previewGrid.innerHTML = '';
         elements.previewContainer.classList.add('hidden');
         if (elements.noImagesMessage) {
@@ -718,11 +732,12 @@
     // Create image preview card
     function createImageCard(imgSrc, index) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'relative';
+        wrapper.className = 'relative cursor-pointer group';
+        wrapper.setAttribute('data-index', index);
 
         // Card container
         const card = document.createElement('div');
-        card.className = 'aspect-square rounded-lg overflow-hidden border-2 border-gray-200';
+        card.className = 'aspect-square rounded-lg overflow-hidden border-2 border-gray-200 transition-all duration-200 group-hover:border-primary/50';
 
         // Image
         const img = document.createElement('img');
@@ -730,26 +745,87 @@
         img.alt = 'Image ' + (index + 1);
         img.className = 'w-full h-full object-cover';
 
-        // Index badge (first image is marked as primary)
+        // Click overlay hint
+        const clickHint = document.createElement('div');
+        clickHint.className = 'absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100';
+        clickHint.innerHTML = `
+            <svg class="w-8 h-8 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+            </svg>
+        `;
+
+        // Primary badge (shows on selected image)
         const badge = document.createElement('div');
-        if (index === 0) {
-            badge.className = 'absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-medium flex items-center gap-1';
+        if (index === state.primaryImageIndex) {
+            badge.className = 'absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-medium flex items-center gap-1 shadow-md';
             badge.innerHTML = `
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
                 <span>${i18n.primary}</span>
             `;
+            card.classList.remove('border-gray-200');
+            card.classList.add('border-green-500', 'ring-2', 'ring-green-200');
         } else {
             badge.className = 'absolute bottom-2 left-2 bg-gray-900/70 text-white text-xs px-2 py-1 rounded font-medium';
             badge.textContent = '#' + (index + 1);
         }
 
+        // Add click event to set as primary
+        wrapper.addEventListener('click', function() {
+            setPrimaryImage(index);
+        });
+
         card.appendChild(img);
+        card.appendChild(clickHint);
         card.appendChild(badge);
         wrapper.appendChild(card);
 
         elements.previewGrid.appendChild(wrapper);
+    }
+
+    // Set primary image
+    function setPrimaryImage(index) {
+        state.primaryImageIndex = index;
+
+        // Update hidden input
+        if (elements.primaryImageIndexInput) {
+            elements.primaryImageIndexInput.value = index.toString();
+        }
+
+        // Re-render all images to update badges and borders
+        updateAllImageCards();
+    }
+
+    // Update all image cards to reflect primary selection
+    function updateAllImageCards() {
+        const wrappers = elements.previewGrid.querySelectorAll('[data-index]');
+
+        wrappers.forEach(wrapper => {
+            const cardIndex = parseInt(wrapper.getAttribute('data-index'));
+            const card = wrapper.querySelector('div:first-child');
+            const badge = wrapper.querySelector('.absolute.top-2, .absolute.bottom-2');
+
+            // Remove existing border classes
+            card.classList.remove('border-green-500', 'ring-2', 'ring-green-200', 'border-gray-200');
+
+            if (cardIndex === state.primaryImageIndex) {
+                // This is the primary image
+                card.classList.add('border-green-500', 'ring-2', 'ring-green-200');
+                badge.className = 'absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-medium flex items-center gap-1 shadow-md';
+                badge.innerHTML = `
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${i18n.primary}</span>
+                `;
+            } else {
+                // Not primary
+                card.classList.add('border-gray-200');
+                badge.className = 'absolute bottom-2 left-2 bg-gray-900/70 text-white text-xs px-2 py-1 rounded font-medium';
+                badge.textContent = '#' + (cardIndex + 1);
+            }
+        });
     }
 
     // Initialize when DOM is ready

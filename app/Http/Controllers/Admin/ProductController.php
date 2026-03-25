@@ -98,7 +98,7 @@ class ProductController extends Controller
      * Store a newly created product with images and initial inventory.
      * Uses DB transaction for data integrity.
      *
-     * ENHANCED: First image is automatically set as primary.
+     * ENHANCED: Primary image can be selected from uploaded images.
      * Redirects to edit page to allow admin to review and change primary image.
      */
     public function store(StoreProductRequest $request): RedirectResponse
@@ -106,8 +106,9 @@ class ProductController extends Controller
         $validated = $request->validated();
         $images = $request->file('images', []);
         $initialQuantity = (int) $validated['initial_quantity'];
+        $primaryImageIndex = (int) $request->input('primary_image_index', 0);
 
-        DB::transaction(function () use ($validated, $images, $initialQuantity, &$product) {
+        DB::transaction(function () use ($validated, $images, $initialQuantity, $primaryImageIndex, &$product) {
             // Generate unique SKU
             $sku = 'SKU-' . str_pad(Product::max('id') + 1, 6, '0', STR_PAD_LEFT);
             $counter = 1;
@@ -130,14 +131,14 @@ class ProductController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            // Upload and attach images - first image is automatically primary
+            // Upload and attach images - use selected index as primary
             foreach ($images as $index => $image) {
                 $path = $image->store('products', 'public');
 
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $path,
-                    'is_primary' => ($index === 0), // First image is primary
+                    'is_primary' => ($index === $primaryImageIndex),
                     'sort_order' => $index,
                 ]);
             }
