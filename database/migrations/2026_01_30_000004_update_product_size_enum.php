@@ -62,7 +62,7 @@ return new class extends Migration
         DB::statement("SET FOREIGN_KEY_CHECKS=0");
 
         // Map back to old values
-        DB::statement("
+        \DB::statement("
             UPDATE products
             SET size = CASE
                 WHEN size = 'S' THEN 'S'

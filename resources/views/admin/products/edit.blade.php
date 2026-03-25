@@ -608,7 +608,7 @@
     'use strict';
 
     // Translation strings passed from controller
-    const translations = {{ json_encode($translations) }};
+    const translations = @json($translations);
 
     // DOM elements
     const elements = {
