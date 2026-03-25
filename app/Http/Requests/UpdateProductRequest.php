@@ -38,7 +38,7 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'sku' => [
-                'required',
+                'nullable',
                 'string',
                 'max:50',
                 Rule::unique('products', 'sku')->ignore($this->route('product')),
