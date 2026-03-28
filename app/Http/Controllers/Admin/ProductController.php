@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Services\ProductImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,12 @@ use Illuminate\View\View;
  */
 class ProductController extends Controller
 {
+    private ProductImageService $imageService;
+
+    public function __construct(ProductImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
     /**
      * Display a listing of products.
      * Authorization is handled via route middleware.
@@ -131,16 +138,14 @@ class ProductController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            // Upload and attach images - use selected index as primary
-            foreach ($images as $index => $image) {
-                $path = $image->store('products', 'public');
+            // Upload and attach images with compression - use selected index as primary
+            if (!empty($images)) {
+                $uploadedImages = $this->imageService->uploadImages($product, $images);
 
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $path,
-                    'is_primary' => ($index === $primaryImageIndex),
-                    'sort_order' => $index,
-                ]);
+                // Set primary image based on selected index
+                if (isset($uploadedImages[$primaryImageIndex])) {
+                    $this->imageService->setPrimaryImage($product, $uploadedImages[$primaryImageIndex]->id);
+                }
             }
 
             // Create initial inventory transaction (type = 'supply')
@@ -242,74 +247,14 @@ class ProductController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            // Step 2: Remove images marked for deletion
-            if (!empty($removeImages)) {
-                foreach ($removeImages as $imageId) {
-                    if (empty($imageId)) continue;
-
-                    $image = ProductImage::find($imageId);
-                    if ($image && $image->product_id === $product->id) {
-                        Storage::disk('public')->delete($image->image_path);
-                        $image->delete();
-                    }
-                }
-            }
-
-            // Step 3: Upload new images
-            $uploadedNewImageIds = [];
-            if (!empty($newImages)) {
-                $maxSortOrder = $product->images()->max('sort_order') ?? 0;
-
-                foreach ($newImages as $index => $image) {
-                    $path = $image->store('products', 'public');
-
-                    $newImage = ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $path,
-                        'is_primary' => false,
-                        'sort_order' => ++$maxSortOrder,
-                    ]);
-
-                    $uploadedNewImageIds[] = $newImage->id;
-
-                    // If this is the selected primary new image, mark it
-                    if ($newImagePrimaryIndex !== null && (int)$newImagePrimaryIndex === $index) {
-                        $primaryImageId = $newImage->id;
-                    }
-                }
-            }
-
-            // Step 4: Set primary image atomically - exactly ONE primary
-            if ($primaryImageId) {
-                // First, ensure ALL images are not primary
-                ProductImage::where('product_id', $product->id)
-                    ->update(['is_primary' => false]);
-
-                // Then set the selected image as primary
-                ProductImage::where('product_id', $product->id)
-                    ->where('id', $primaryImageId)
-                    ->update(['is_primary' => true]);
-            } else {
-                // Fallback: ensure at least one primary image exists
-                $primaryCount = $product->images()->where('is_primary', true)->count();
-
-                if ($primaryCount === 0) {
-                    $firstImage = $product->images()->orderBy('sort_order')->first();
-                    if ($firstImage) {
-                        ProductImage::where('product_id', $product->id)
-                            ->update(['is_primary' => false]);
-                        $firstImage->update(['is_primary' => true]);
-                    }
-                } elseif ($primaryCount > 1) {
-                    // Multiple primaries - keep only the first one
-                    $images = $product->images()->where('is_primary', true)->orderBy('sort_order')->get();
-                    $keepPrimary = $images->first();
-
-                    ProductImage::where('product_id', $product->id)
-                        ->update(['is_primary' => false]);
-                    $keepPrimary->update(['is_primary' => true]);
-                }
-            }
+            // Step 2: Handle image updates (remove, upload new, set primary)
+            $uploadedNewImageIds = $this->imageService->handleImageUpdates(
+                $product,
+                $newImages,
+                $removeImages,
+                $primaryImageId,
+                $newImagePrimaryIndex !== null ? (int)$newImagePrimaryIndex : null
+            );
         });
 
         return redirect()

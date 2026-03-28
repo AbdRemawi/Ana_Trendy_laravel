@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
 use App\Models\Brand;
+use App\Services\ImageCompressorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +22,12 @@ use Illuminate\Support\Str;
  */
 class BrandController extends Controller
 {
+    private ImageCompressorService $compressor;
+
+    public function __construct(ImageCompressorService $compressor)
+    {
+        $this->compressor = $compressor;
+    }
     public function index(Request $request): View
     {
         $query = Brand::query();
@@ -50,7 +57,7 @@ class BrandController extends Controller
 
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('brands', 'public');
+            $logoPath = $this->compressor->compressAndStore($request->file('logo'), 'brands', 'public');
         }
 
         Brand::create([
@@ -91,7 +98,7 @@ class BrandController extends Controller
                 Storage::disk('public')->delete($brand->logo);
             }
 
-            $updateData['logo'] = $request->file('logo')->store('brands', 'public');
+            $updateData['logo'] = $this->compressor->compressAndStore($request->file('logo'), 'brands', 'public');
         }
 
         $brand->update($updateData);

@@ -24,7 +24,7 @@ class UpdateCategoryRequest extends FormRequest
                 'exists:categories,id',
                 Rule::notIn([$category->id]),
             ],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'max:51200'], // 50MB (will be compressed to 2MB)
             'status' => ['required', 'in:active,inactive'],
             'sort_order' => ['required', 'integer', 'min:0'],
         ];

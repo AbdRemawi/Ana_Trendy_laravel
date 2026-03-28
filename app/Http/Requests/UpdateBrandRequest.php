@@ -48,7 +48,7 @@ class UpdateBrandRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,webp',
-                'max:2048', // 2MB in kilobytes
+                'max:51200', // 50MB (will be compressed to 2MB)
             ],
             'status' => [
                 'required',
@@ -73,7 +73,7 @@ class UpdateBrandRequest extends FormRequest
 
             'logo.image' => 'The logo must be an image.',
             'logo.mimes' => 'The logo must be a file of type: jpeg, png, jpg, webp.',
-            'logo.max' => 'The logo may not be greater than 2MB.',
+            'logo.max' => 'The logo may not be greater than 50MB.',
 
             'status.required' => 'The status field is required.',
             'status.in' => 'The selected status is invalid.',

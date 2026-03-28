@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
  * Product Image Service
  *
  * Handles all product image-related business logic:
- * - Image upload and storage
+ * - Image upload and storage with compression
  * - Primary image management
  * - Image ordering
  * - Image deletion
@@ -22,6 +22,12 @@ use Illuminate\Support\Facades\Storage;
  */
 class ProductImageService
 {
+    private ImageCompressorService $compressor;
+
+    public function __construct(ImageCompressorService $compressor)
+    {
+        $this->compressor = $compressor;
+    }
     /**
      * Upload new images for a product.
      *
@@ -35,7 +41,8 @@ class ProductImageService
         $maxSortOrder = $product->images()->max('sort_order') ?? 0;
 
         foreach ($images as $index => $image) {
-            $path = $image->store('products', 'public');
+            // Use compressor service to compress and store the image
+            $path = $this->compressor->compressAndStore($image, 'products', 'public');
 
             $uploadedImages[] = ProductImage::create([
                 'product_id' => $product->id,
@@ -145,7 +152,8 @@ class ProductImageService
 
         DB::transaction(function () use ($product, $images) {
             foreach ($images as $index => $image) {
-                $path = $image->store('products', 'public');
+                // Use compressor service to compress and store the image
+                $path = $this->compressor->compressAndStore($image, 'products', 'public');
 
                 ProductImage::create([
                     'product_id' => $product->id,
@@ -155,7 +163,6 @@ class ProductImageService
                 ]);
             }
         });
-    }
     }
 
     /**

@@ -113,7 +113,7 @@ class StoreProductRequest extends FormRequest
                 'required',
                 'image',
                 'mimes:jpeg,png,jpg,webp',
-                'max:2048', // 2MB per image
+                'max:51200', // 50MB per image (will be compressed to 2MB)
             ],
         ];
     }

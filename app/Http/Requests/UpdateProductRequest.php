@@ -105,7 +105,7 @@ class UpdateProductRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,webp',
-                'max:2048', // 2MB per image
+                'max:51200', // 50MB per image (will be compressed to 2MB)
             ],
             // Primary image selection - single image ID from all images (existing + new)
             'primary_image_id' => [

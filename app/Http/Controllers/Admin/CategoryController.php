@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Services\ImageCompressorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -22,12 +23,18 @@ use Illuminate\View\View;
  * Features:
  * - Hierarchical categories with parent-child relationships
  * - Auto-generate slugs from category names
- * - Handle image uploads with proper storage
+ * - Handle image uploads with compression
  * - Soft delete support for categories
  * - Prevent deletion of categories with children
  */
 class CategoryController extends Controller
 {
+    private ImageCompressorService $compressor;
+
+    public function __construct(ImageCompressorService $compressor)
+    {
+        $this->compressor = $compressor;
+    }
     /**
      * Display a hierarchical listing of categories.
      * Authorization is handled via route middleware.
@@ -68,10 +75,10 @@ class CategoryController extends Controller
         // Auto-generate slug from name
         $slug = Str::slug($validated['name']);
 
-        // Handle image upload
+        // Handle image upload with compression
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('categories', 'public');
+            $imagePath = $this->compressor->compressAndStore($request->file('image'), 'categories', 'public');
         }
 
         Category::create([
@@ -122,14 +129,14 @@ class CategoryController extends Controller
             'sort_order' => $validated['sort_order'],
         ];
 
-        // Handle image upload
+        // Handle image upload with compression
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
             }
 
-            $updateData['image'] = $request->file('image')->store('categories', 'public');
+            $updateData['image'] = $this->compressor->compressAndStore($request->file('image'), 'categories', 'public');
         }
 
         $category->update($updateData);
