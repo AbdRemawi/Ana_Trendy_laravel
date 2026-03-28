@@ -7,6 +7,9 @@
     php_value upload_max_filesize 50M
     php_value post_max_size 50M
 
+    # Increase Apache request body limit (50MB = 52428800 bytes)
+    LimitRequestBody 52428800
+
     RewriteEngine On
 
     # Handle Authorization Header
