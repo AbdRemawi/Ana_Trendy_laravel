@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -110,6 +111,19 @@ class Product extends Model
     public function primaryImage(): HasMany
     {
         return $this->hasMany(ProductImage::class)->where('is_primary', true)->limit(1);
+    }
+
+    /**
+     * Get a single main image per product (primary first, else lowest sort_order).
+     * Uses Laravel "one of many" so it works correctly with eager loading.
+     */
+    public function mainImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->ofMany([
+            'is_primary' => 'max',
+            'sort_order' => 'min',
+            'id' => 'min',
+        ]);
     }
 
     /**

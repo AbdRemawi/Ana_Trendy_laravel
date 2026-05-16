@@ -25,7 +25,18 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->active()
-            ->with(['brand', 'images'])
+            ->inStock()
+            ->select([
+                'id', 'name', 'slug', 'description',
+                'brand_id', 'category_id',
+                'sale_price', 'offer_price',
+                'size', 'gender',
+                'status', 'created_at',
+            ])
+            ->with([
+                'brand:id,name,slug',
+                'mainImage',
+            ])
             ->withStockQuantity();
 
         // Apply filters
@@ -46,7 +57,8 @@ class ProductController extends Controller
         // Add metadata to response
         $data['meta'] = array_merge($data['meta'] ?? [], $metadata);
 
-        return response()->json($data);
+        return response()->json($data)
+            ->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     }
 
     /**

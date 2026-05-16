@@ -74,20 +74,20 @@ class ProductResource extends JsonResource
      */
     private function getMainImageUrl(): ?string
     {
-        // Check if primaryImage relation is loaded
+        // Single hasOne relation (preferred, fastest)
+        if ($this->relationLoaded('mainImage') && $this->mainImage) {
+            return $this->mainImage->image_url;
+        }
+
+        // Legacy: primaryImage collection
         if ($this->relationLoaded('primaryImage') && $this->primaryImage->isNotEmpty()) {
             return $this->primaryImage->first()?->image_url;
         }
 
-        // Check if images relation is loaded
+        // Legacy: full images collection
         if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
-            // Try to get primary image
-            $primaryImage = $this->images->firstWhere('is_primary', true);
-
-            // Fall back to first image
-            if (!$primaryImage) {
-                $primaryImage = $this->images->first();
-            }
+            $primaryImage = $this->images->firstWhere('is_primary', true)
+                ?? $this->images->first();
 
             return $primaryImage?->image_url;
         }
