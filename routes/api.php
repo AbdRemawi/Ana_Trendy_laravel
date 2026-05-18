@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CitiesController;
 use App\Http\Controllers\Api\CouponController;
+use App\Http\Controllers\Api\OrderTrackingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +37,10 @@ Route::prefix('v1')->group(function () {
         Route::post('validate', [CouponController::class, 'validateCoupon']);
         Route::post('preview', [CouponController::class, 'preview']);
     });
+
+    // Order Tracking API (lookup by customer phone)
+    Route::get('orders/track', [OrderTrackingController::class, 'index'])
+        ->middleware('throttle:10,1');
 
     // Checkout API
     Route::post('checkout', [CheckoutController::class, 'store']);
