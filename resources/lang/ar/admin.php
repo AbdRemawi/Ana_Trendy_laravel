@@ -814,7 +814,7 @@ return [
     'order_phone_numbers' => 'أرقام الهواتف',
     'subtotal_products' => 'إجمالي المنتجات',
     'delivery_fee' => 'رسوم التوصيل',
-    'real_delivery_fee' => 'سعر التوصيل الحقيقي',
+    'real_delivery_fees' => 'رسوم التوصيل',
     'coupon_discount' => 'خصم الكوبون',
     'free_delivery_discount' => 'توصيل مجاني',
     'actual_charge' => 'القيمة الفعلية',
@@ -891,6 +891,7 @@ return [
     // Order Profit
     'order_profit' => 'ربح الطلب',
     'total_items' => 'إجمالي العناصر',
+    'print_pdf' => 'طباعة PDF',
 
     // ============ COUPON MANAGEMENT ============
     'coupons_management' => 'إدارة الكوبونات',

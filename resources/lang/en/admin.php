@@ -893,6 +893,7 @@ return [
     // Order Profit
     'order_profit' => 'Order Profit',
     'total_items' => 'Total Items',
+    'print_pdf' => 'Print PDF',
 
     // ============ COUPON MANAGEMENT ============
     'coupons_management' => 'Coupons Management',

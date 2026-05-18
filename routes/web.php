@@ -227,6 +227,7 @@ Route::middleware(['auth', 'throttle:60,1'])->prefix('admin')->name('admin.')->g
 
     Route::middleware(['permission:view orders'])->group(function () {
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}/print', [OrderController::class, 'print'])->name('orders.print');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     });
 

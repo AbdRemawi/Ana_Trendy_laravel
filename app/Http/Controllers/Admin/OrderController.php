@@ -66,6 +66,13 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order'));
     }
 
+    public function print(Order $order): View
+    {
+        $order->load(['items.product.primaryImage', 'mobiles', 'city', 'deliveryCourier', 'coupon']);
+
+        return view('admin.orders.print', compact('order'));
+    }
+
     public function edit(Order $order): View
     {
         if (!$order->isProcessing()) {
