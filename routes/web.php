@@ -14,9 +14,15 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LanguageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+// On-the-fly resized image endpoint: /img/{path}?w=600&q=80&fmt=webp
+Route::get('/img/{path}', [ImageController::class, 'show'])
+    ->where('path', '.*')
+    ->name('img.show');
 
 // Language switcher
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');

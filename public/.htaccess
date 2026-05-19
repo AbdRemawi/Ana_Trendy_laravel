@@ -30,3 +30,13 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Long-lived cache headers for static image assets under /storage/*.
+# Apache serves these directly via the public/storage symlink, so the
+# CacheImagesHeader Laravel middleware never fires for them.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(?i:jpe?g|png|gif|webp|avif|svg|ico)$">
+        Header set Cache-Control "public, max-age=2592000, immutable"
+        Header append Vary "Accept"
+    </FilesMatch>
+</IfModule>
