@@ -159,10 +159,9 @@
 </div>
 
 {{-- Orders Table --}}
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-100">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100">
+    <x-responsive-table :bordered="false">
+        <thead class="bg-gray-50 border-b border-gray-100">
                 <tr>
                     <th class="px-6 py-3 {{ $direction === 'rtl' ? 'text-right' : 'text-left' }}">
                         <span class="text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -394,8 +393,7 @@
                     </tr>
                 @endforelse
             </tbody>
-        </table>
-    </div>
+    </x-responsive-table>
 
     {{-- Pagination --}}
     @if($orders->hasPages())

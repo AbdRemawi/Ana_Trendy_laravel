@@ -222,7 +222,7 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="p-4 bg-gray-50 rounded-lg">
                     <dt class="text-xs font-medium text-gray-500 uppercase">
                         {{ __('admin.current_stock') }}

@@ -204,22 +204,22 @@
                 <table class="w-full">
                     <thead class="border-b border-gray-100">
                         <tr>
-                            <th class="pb-3 text-left">
+                            <th class="pb-3 text-start">
                                 <span class="text-xs font-semibold text-gray-600 uppercase">
                                     {{ __('admin.order_number') }}
                                 </span>
                             </th>
-                            <th class="pb-3 text-left">
+                            <th class="pb-3 text-start">
                                 <span class="text-xs font-semibold text-gray-600 uppercase">
                                     {{ __('admin.customer_name') }}
                                 </span>
                             </th>
-                            <th class="pb-3 text-left">
+                            <th class="pb-3 text-start">
                                 <span class="text-xs font-semibold text-gray-600 uppercase">
                                     {{ __('admin.coupon_discount') }}
                                 </span>
                             </th>
-                            <th class="pb-3 text-left">
+                            <th class="pb-3 text-start">
                                 <span class="text-xs font-semibold text-gray-600 uppercase">
                                     {{ __('admin.order_date') }}
                                 </span>

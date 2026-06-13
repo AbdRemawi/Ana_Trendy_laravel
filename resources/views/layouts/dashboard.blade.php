@@ -21,25 +21,30 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-screen w-full bg-accent-light text-gray-900 antialiased overflow-hidden">
+<body class="min-h-screen w-full bg-accent-light text-gray-900 antialiased overflow-x-clip lg:h-[100dvh] lg:overflow-hidden">
     {{--
-        Dashboard Layout Structure:
-        - body: h-screen + overflow-hidden fixes body at viewport height, prevents body scroll
-        - Outer flex: h-full to fill the body height
-        - min-h-0 on flex children prevents them from growing beyond container (fixes flex item overflow bug)
-        - Main content uses flex-col to stack header and scrollable content
+        Dashboard Layout Structure (responsive scroll model):
+        - Mobile (< lg): body grows with content (min-h-screen) and scrolls naturally;
+          overflow-x-CLIP (not hidden) prevents sideways scroll WITHOUT turning <body>
+          into a scroll container — hidden would force overflow-y:auto, making the body
+          itself scroll and bottom out before the end on mobile. Inner panes don't lock
+          height, so the last table rows + pagination are always reachable.
+        - Desktop (lg+): body is a fixed 100dvh frame (lg:h-[100dvh] + lg:overflow-hidden);
+          the sidebar stays fixed and only <main> scrolls (inner-scroll layout).
+        - min-h-0 on flex children prevents them from growing beyond container (flex overflow bug).
+        - 100dvh (dynamic viewport height) keeps the mobile browser chrome from eating content.
     --}}
-    <div class="flex h-full min-h-0 overflow-x-hidden">
+    <div class="flex min-h-0 overflow-x-clip lg:h-full">
         {{-- Sidebar --}}
         <x-dashboard.sidebar />
 
         {{-- Main Content Area --}}
-        <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-accent-light">
+        <div class="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-hidden bg-accent-light">
             {{-- Header --}}
             <x-dashboard.header />
 
-            {{-- Page Content - Only this area scrolls --}}
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            {{-- Page Content - scrolls with the page on mobile, inner-scrolls on lg+ --}}
+            <main class="flex-1 overflow-y-visible lg:overflow-y-auto p-4 sm:p-6 lg:p-8">
                 <div class="max-w-7xl mx-auto">
                     {{-- Flash Messages --}}
                     @if(session('success'))

@@ -161,13 +161,13 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-accent-light">
-                        <th class="text-left py-3 px-2 font-medium text-primary/60">Order #</th>
-                        <th class="text-left py-3 px-2 font-medium text-primary/60">Customer</th>
-                        <th class="text-left py-3 px-2 font-medium text-primary/60">City</th>
-                        <th class="text-left py-3 px-2 font-medium text-primary/60">Status</th>
-                        <th class="text-left py-3 px-2 font-medium text-primary/60">Items</th>
-                        <th class="text-right py-3 px-2 font-medium text-primary/60">Total</th>
-                        <th class="text-left py-3 px-2 font-medium text-primary/60">Date</th>
+                        <th class="text-start py-3 px-2 font-medium text-primary/60">Order #</th>
+                        <th class="text-start py-3 px-2 font-medium text-primary/60">Customer</th>
+                        <th class="text-start py-3 px-2 font-medium text-primary/60">City</th>
+                        <th class="text-start py-3 px-2 font-medium text-primary/60">Status</th>
+                        <th class="text-start py-3 px-2 font-medium text-primary/60">Items</th>
+                        <th class="text-end py-3 px-2 font-medium text-primary/60">Total</th>
+                        <th class="text-start py-3 px-2 font-medium text-primary/60">Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -196,7 +196,7 @@
                                 @endswitch
                             </td>
                             <td class="py-3 px-2 text-primary/60">{{ $order['items_count'] }} ({{ $order['total_items'] }})</td>
-                            <td class="py-3 px-2 text-right font-medium text-primary">JOD {{ number_format($order['actual_charge'], 2) }}</td>
+                            <td class="py-3 px-2 text-end font-medium text-primary">JOD {{ number_format($order['actual_charge'], 2) }}</td>
                             <td class="py-3 px-2 text-primary/60">{{ \Carbon\Carbon::parse($order['created_at'])->diffForHumans() }}</td>
                         </tr>
                     @empty
@@ -221,7 +221,7 @@
                         <p class="text-xs text-primary/50">{{ $product['brand_name'] }} · Size {{ $product['size'] }}</p>
                     </div>
                     <div class="flex items-center gap-4 text-sm">
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="font-medium text-primary">{{ $product['total_sold'] }} sold</p>
                             <p class="text-xs text-green-600">JOD {{ number_format($product['total_profit'], 2) }} profit</p>
                         </div>
@@ -249,7 +249,7 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-4 text-sm">
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="font-medium text-primary">{{ $coupon['usage_count'] }} used</p>
                             <p class="text-xs text-red-600">-JOD {{ number_format($coupon['total_discount_given'], 2) }}</p>
                         </div>
@@ -266,7 +266,7 @@
         {{-- Inventory Health --}}
         <div class="bg-white rounded-xl border border-accent-light shadow-sm p-6">
             <h3 class="text-lg font-semibold text-primary/80 mb-4">Inventory Health</h3>
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div class="bg-accent-light/30 rounded-lg p-3 text-center">
                     <p class="text-2xl font-bold text-primary">{{ $totalStockValue > 0 ? 'JOD ' . number_format($totalStockValue, 0) : '-' }}</p>
                     <p class="text-xs text-primary/60 mt-1">Stock Value</p>
@@ -305,7 +305,7 @@
                         <p class="text-sm font-medium text-primary truncate">{{ $courier['courier_name'] }}</p>
                         <p class="text-xs text-primary/50">{{ $courier['order_count'] }} orders</p>
                     </div>
-                    <div class="text-right">
+                    <div class="text-end">
                         <p class="text-sm font-medium {{ $courier['profit'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
                             JOD {{ number_format($courier['profit'], 2) }}
                         </p>
@@ -340,9 +340,9 @@
                                 @default
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">±</span>
                             @endswitch
-                            <p class="text-xs font-medium text-primary truncate ml-2">{{ $movement['product_name'] ?? 'Unknown' }}</p>
+                            <p class="text-xs font-medium text-primary truncate ms-2">{{ $movement['product_name'] ?? 'Unknown' }}</p>
                         </div>
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="text-sm font-medium text-primary">{{ $movement['quantity'] }}</p>
                             <p class="text-xs text-primary/50">{{ \Carbon\Carbon::parse($movement['created_at'])->diffForHumans() }}</p>
                         </div>

@@ -83,7 +83,7 @@
                                focus:ring-2 focus:ring-primary/20 focus:border-primary
                                transition-all duration-200
                                text-sm
-                               file:mr-4 file:py-2 file:px-4
+                               file:me-4 file:py-2 file:px-4
                                file:rounded-full file:border-0
                                file:text-sm file:font-semibold
                                file:bg-primary/10 file:text-primary
