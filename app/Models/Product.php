@@ -110,7 +110,11 @@ class Product extends Model
      */
     public function primaryImage(): HasMany
     {
-        return $this->hasMany(ProductImage::class)->where('is_primary', true)->limit(1);
+        // No limit() here on purpose: a limit on a HasMany forces Laravel into a
+        // slow window-function (ROW_NUMBER OVER PARTITION BY) eager-load query.
+        // booted() already guarantees a single primary image per product, so a
+        // plain indexed lookup (product_id, is_primary) returns at most one row.
+        return $this->hasMany(ProductImage::class)->where('is_primary', true);
     }
 
     /**

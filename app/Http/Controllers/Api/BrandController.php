@@ -41,7 +41,19 @@ class BrandController extends Controller
             ->with([
                 'products' => function ($query) {
                     $query->active()
-                        ->with(['primaryImage', 'brand'])
+                        ->inStock()
+                        ->select([
+                            'id', 'name', 'slug', 'description',
+                            'brand_id', 'category_id',
+                            'sale_price', 'offer_price',
+                            'size', 'gender',
+                            'status', 'created_at',
+                        ])
+                        ->with([
+                            'brand:id,name,slug',
+                            'primaryImage:id,product_id,image_path,is_primary',
+                        ])
+                        ->withStockQuantity()
                         ->orderBy('name');
                 }
             ])
