@@ -243,4 +243,23 @@ class InventoryService
             ]);
         }
     }
+
+    /**
+     * Delete all inventory transactions belonging to an order.
+     *
+     * Removes both the "sale" transactions created when the order was placed
+     * and any "return" transactions created when it was cancelled/returned,
+     * so the order leaves no footprint in the inventory ledger and stock
+     * returns to its as-if-the-order-never-existed value.
+     *
+     * @param Order $order
+     * @return void
+     */
+    public function deleteTransactionsForOrder(Order $order): void
+    {
+        InventoryTransaction::whereIn('notes', [
+            "Order #{$order->order_number}",
+            "Restored from order #{$order->order_number}",
+        ])->delete();
+    }
 }

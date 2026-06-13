@@ -10,15 +10,18 @@ use App\Models\City;
 use App\Models\DeliveryCourier;
 use App\Models\Coupon;
 use App\Services\OrderStatusService;
+use App\Services\InventoryService;
 use App\Enums\OrderStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     public function __construct(
-        private OrderStatusService $orderStatusService
+        private OrderStatusService $orderStatusService,
+        private InventoryService $inventoryService
     ) {}
 
     public function index(Request $request): View
@@ -149,7 +152,16 @@ class OrderController extends Controller
     {
         try {
             $orderNumber = $order->order_number;
-            $order->delete();
+
+            DB::transaction(function () use ($order) {
+                // Remove this order's inventory transactions (both the "sale"
+                // entries from placement and any "return" entries from
+                // cancellation), so the deducted stock is returned and the
+                // ledger keeps no leftover entries for the deleted order.
+                $this->inventoryService->deleteTransactionsForOrder($order);
+
+                $order->delete();
+            });
 
             return redirect()
                 ->route('admin.orders.index')
