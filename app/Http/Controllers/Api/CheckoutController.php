@@ -7,7 +7,6 @@ use App\Http\Requests\Api\CheckoutRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderMobile;
-use App\Models\Product;
 use App\Services\OrderCalculationService;
 use App\Services\CouponValidationService;
 use App\Services\InventoryService;
@@ -72,10 +71,6 @@ class CheckoutController extends Controller
                 ], 422);
             }
 
-            // Get product details for order items
-            $productIds = collect($request->cartItems)->pluck('id');
-            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-
             // Generate order number
             $orderNumber = $this->generateOrderNumber();
 
@@ -97,18 +92,23 @@ class CheckoutController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            // Create order items
-            foreach ($request->cartItems as $item) {
-                $product = $products->get($item['id']);
+            // Create order items using the effective (offer) price and per-unit coupon
+            // split, so profit is recorded as (sale price - cost price) for on-sale items.
+            $preparedItems = $this->calculationService->distributeCouponAcrossItems(
+                $cartItems,
+                $couponDiscountAmount
+            );
+
+            foreach ($preparedItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $item['id'],
+                    'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
-                    'base_price' => $product->sale_price,
-                    'coupon_discount_per_unit' => 0,
-                    'unit_sale_price' => $product->sale_price,
-                    'unit_cost_price' => $product->cost_price ?? 0,
-                    'total_price' => $product->sale_price * $item['quantity'],
+                    'base_price' => $item['base_price'],
+                    'coupon_discount_per_unit' => $item['coupon_discount_per_unit'],
+                    'unit_sale_price' => $item['unit_sale_price'],
+                    'unit_cost_price' => $item['unit_cost_price'],
+                    'total_price' => $item['total_price'],
                 ]);
             }
 
