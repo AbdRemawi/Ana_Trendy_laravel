@@ -496,11 +496,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        window.addEventListener('load', function () {
-            setTimeout(function () { window.print(); }, 350);
-        });
-    </script>
 </body>
 </html>
