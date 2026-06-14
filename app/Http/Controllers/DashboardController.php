@@ -574,13 +574,13 @@ class DashboardController extends Controller
     protected function getFilterLabel(string $filter, ?string $startDate, ?string $endDate): string
     {
         return match ($filter) {
-            'today' => 'Today',
-            'week' => 'This Week',
-            'month' => 'This Month',
+            'today' => __('dashboard.filter_today'),
+            'week' => __('dashboard.filter_week'),
+            'month' => __('dashboard.filter_month'),
             'custom' => $startDate && $endDate
                 ? Carbon::parse($startDate)->format('M d') . ' - ' . Carbon::parse($endDate)->format('M d, Y')
-                : 'Custom Range',
-            default => 'All Time',
+                : __('dashboard.filter_custom'),
+            default => __('dashboard.filter_all'),
         };
     }
 }
