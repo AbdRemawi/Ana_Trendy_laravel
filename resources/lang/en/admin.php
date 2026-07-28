@@ -844,6 +844,20 @@ return [
     'order_not_editable' => 'This order cannot be edited',
     'order_cannot_be_deleted' => 'This order cannot be deleted',
 
+    // Bulk status change + export
+    'bulk_change_status' => 'Change Status',
+    'bulk_change_status_title' => 'Change status of processing orders',
+    'export_orders' => 'Export Excel',
+    'select_target_status' => 'New status',
+    'select_all' => 'Select all',
+    'apply' => 'Apply',
+    'no_processing_orders' => 'There are no processing orders.',
+    'selected_count' => 'Selected: :count',
+    'bulk_status_updated' => 'Updated the status of :count order(s) to ":status".',
+    'bulk_status_failed' => 'Could not update the following orders: :orders',
+    'export_total_wholesale' => 'Total Wholesale',
+    'export_totals' => 'Grand Total',
+
     // Order Success Messages
     'order_created_successfully' => 'Order created successfully.',
     'order_updated_successfully' => 'Order updated successfully.',

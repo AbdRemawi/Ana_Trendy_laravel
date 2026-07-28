@@ -842,6 +842,20 @@ return [
     'order_not_editable' => 'لا يمكن تعديل هذا الطلب',
     'order_cannot_be_deleted' => 'لا يمكن حذف هذا الطلب',
 
+    // Bulk status change + export
+    'bulk_change_status' => 'تغيير الحالة',
+    'bulk_change_status_title' => 'تغيير حالة الطلبات قيد المعالجة',
+    'export_orders' => 'تصدير Excel',
+    'select_target_status' => 'الحالة الجديدة',
+    'select_all' => 'تحديد الكل',
+    'apply' => 'تطبيق',
+    'no_processing_orders' => 'لا توجد طلبات قيد المعالجة.',
+    'selected_count' => 'المحدد: :count',
+    'bulk_status_updated' => 'تم تحديث حالة :count طلب إلى ":status".',
+    'bulk_status_failed' => 'تعذّر تحديث الطلبات التالية: :orders',
+    'export_total_wholesale' => 'إجمالي الجملة',
+    'export_totals' => 'الإجمالي الكلي',
+
     // Order Success Messages
     'order_created_successfully' => 'تم إنشاء الطلب بنجاح.',
     'order_updated_successfully' => 'تم تحديث الطلب بنجاح.',

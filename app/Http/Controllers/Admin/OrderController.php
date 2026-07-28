@@ -58,7 +58,13 @@ class OrderController extends Controller
         $couriers = DeliveryCourier::active()->orderBy('name')->get(['id', 'name']);
         $coupons = Coupon::active()->orderBy('code')->get(['id', 'code']);
 
-        return view('admin.orders.index', compact('orders', 'cities', 'couriers', 'coupons'));
+        // Processing ("pending") orders shown in the bulk status-change modal.
+        $processingOrders = Order::byStatus(OrderStatus::PROCESSING->value)
+            ->with(['city'])
+            ->latest()
+            ->get();
+
+        return view('admin.orders.index', compact('orders', 'cities', 'couriers', 'coupons', 'processingOrders'));
     }
 
     public function show(Order $order): View
@@ -170,6 +176,137 @@ class OrderController extends Controller
             return back()
                 ->with('error', __('admin.order_cannot_be_deleted') . ': ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Change the status of many selected orders at once (from the modal).
+     */
+    public function bulkUpdateStatus(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'order_ids'   => ['required', 'array', 'min:1'],
+            'order_ids.*' => ['integer', 'exists:orders,id'],
+            'status'      => ['required', 'in:' . implode(',', OrderStatus::values())],
+        ]);
+
+        $newStatus = OrderStatus::from($validated['status']);
+        $orders = Order::with('items')->whereIn('id', $validated['order_ids'])->get();
+
+        $updated = 0;
+        $failed = [];
+
+        foreach ($orders as $order) {
+            try {
+                if (!$this->orderStatusService->canTransitionTo($order, $newStatus)) {
+                    $failed[] = $order->order_number;
+                    continue;
+                }
+
+                $this->orderStatusService->transitionStatus($order, $newStatus);
+                $updated++;
+            } catch (\Exception $e) {
+                $failed[] = $order->order_number;
+            }
+        }
+
+        $message = __('admin.bulk_status_updated', [
+            'count'  => $updated,
+            'status' => __('admin.status_' . $newStatus->value),
+        ]);
+
+        $redirect = redirect()->route('admin.orders.index');
+
+        if (!empty($failed)) {
+            return $redirect
+                ->with('success', $message)
+                ->with('error', __('admin.bulk_status_failed', ['orders' => implode(', ', $failed)]));
+        }
+
+        return $redirect->with('success', $message);
+    }
+
+    /**
+     * Export active orders (everything except cancelled / returned) to a
+     * UTF-8 CSV that Excel opens directly, including per-order wholesale cost,
+     * profit and status, plus a totals row.
+     */
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $excludedStatuses = [
+            OrderStatus::CANCELLED->value,
+            OrderStatus::RETURNED->value,
+        ];
+
+        $orders = Order::with(['items.product', 'city'])
+            ->whereNotIn('status', $excludedStatuses)
+            ->latest()
+            ->get();
+
+        $filename = 'orders-export.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return response()->streamDownload(function () use ($orders) {
+            $out = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel renders Arabic correctly.
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, [
+                __('admin.order_number'),
+                __('admin.customer_name'),
+                __('admin.order_city'),
+                __('admin.order_date'),
+                __('admin.order_status'),
+                __('admin.export_total_wholesale'),
+                __('admin.order_profit'),
+                __('admin.total_price'),
+            ]);
+
+            $sumWholesale = 0;
+            $sumProfit = 0;
+            $sumTotal = 0;
+
+            foreach ($orders as $order) {
+                $wholesale = $order->items->sum(function ($item) {
+                    $costPrice = $item->product->cost_price ?? $item->unit_cost_price;
+                    return $costPrice * $item->quantity;
+                });
+                // Profit = items revenue - items cost (matches Order::getProfitAttribute),
+                // computed from the eager-loaded items to avoid a query per order.
+                $profit = $order->items->sum('total_price') - $wholesale;
+                $total = $order->total_price_for_customer;
+
+                $sumWholesale += $wholesale;
+                $sumProfit += $profit;
+                $sumTotal += $total;
+
+                fputcsv($out, [
+                    $order->order_number,
+                    $order->full_name,
+                    $order->city->name ?? '-',
+                    $order->created_at->format('Y-m-d H:i'),
+                    __('admin.status_' . $order->status),
+                    number_format($wholesale, 2, '.', ''),
+                    number_format($profit, 2, '.', ''),
+                    number_format($total, 2, '.', ''),
+                ]);
+            }
+
+            // Totals row.
+            fputcsv($out, [
+                __('admin.export_totals'),
+                '', '', '', '',
+                number_format($sumWholesale, 2, '.', ''),
+                number_format($sumProfit, 2, '.', ''),
+                number_format($sumTotal, 2, '.', ''),
+            ]);
+
+            fclose($out);
+        }, $filename, $headers);
     }
 
     public function getAvailableTransitions(Order $order): View

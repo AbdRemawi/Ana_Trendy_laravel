@@ -229,10 +229,14 @@ Route::middleware(['auth', 'throttle:60,1'])->prefix('admin')->name('admin.')->g
         Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::post('orders/{order}/assign-courier', [OrderController::class, 'assignCourier'])->name('orders.assign-courier');
         Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::post('orders/bulk-status', [OrderController::class, 'bulkUpdateStatus'])->name('orders.bulk-status');
     });
 
     Route::middleware(['permission:view orders'])->group(function () {
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        // Must be declared before the orders/{order} wildcard so it is not
+        // captured as a model-bound parameter.
+        Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
         Route::get('orders/{order}/print', [OrderController::class, 'print'])->name('orders.print');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     });

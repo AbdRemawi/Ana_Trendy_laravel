@@ -6,7 +6,13 @@
 @endphp
 
 {{-- Page Header --}}
-<div class="mb-6">
+<div class="mb-6"
+     x-data="{
+        open: false,
+        selected: [],
+        allIds: {{ $processingOrders->pluck('id')->map(fn ($id) => (string) $id)->values()->toJson() }},
+        toggleAll(checked) { this.selected = checked ? [...this.allIds] : []; }
+     }">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">
@@ -16,7 +22,147 @@
                 {{ __('admin.orders_description') }}
             </p>
         </div>
+
+        {{-- Action Buttons --}}
+        <div class="flex items-center gap-3 {{ $direction === 'rtl' ? 'flex-row-reverse' : '' }}">
+            @can('view orders')
+                {{-- Export active orders to Excel/CSV --}}
+                <a href="{{ route('admin.orders.export') }}"
+                   class="inline-flex items-center gap-2 px-4 py-2
+                          bg-green-600 text-white rounded-lg
+                          hover:bg-green-700 transition-colors duration-200
+                          font-medium text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    {{ __('admin.export_orders') }}
+                </a>
+            @endcan
+
+            @can('manage orders')
+                {{-- Open bulk status-change modal --}}
+                <button type="button"
+                        @click="open = true"
+                        class="inline-flex items-center gap-2 px-4 py-2
+                               bg-primary text-white rounded-lg
+                               hover:bg-primary/90 transition-colors duration-200
+                               font-medium text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    {{ __('admin.bulk_change_status') }}
+                </button>
+            @endcan
+        </div>
     </div>
+
+    {{-- Bulk Status-Change Modal --}}
+    @can('manage orders')
+    <div x-show="open" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-black/50" @click="open = false"></div>
+
+        {{-- Dialog --}}
+        <div class="relative bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col"
+             @click.stop>
+            <form method="POST" action="{{ route('admin.orders.bulk-status') }}"
+                  class="flex flex-col max-h-[85vh]">
+                @csrf
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        {{ __('admin.bulk_change_status_title') }}
+                    </h3>
+                    <button type="button" @click="open = false"
+                            class="p-1 text-gray-400 hover:text-gray-600 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <div class="px-6 py-4 overflow-y-auto flex-1">
+                    @if($processingOrders->isEmpty())
+                        <p class="text-sm text-gray-500 py-8 text-center">
+                            {{ __('admin.no_processing_orders') }}
+                        </p>
+                    @else
+                        {{-- Target status + select all --}}
+                        <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-4">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">
+                                    {{ __('admin.select_target_status') }}
+                                </label>
+                                <select name="status" required
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-200
+                                               focus:ring-2 focus:ring-primary/20 focus:border-primary
+                                               text-sm bg-white">
+                                    <option value="with_delivery_company">{{ __('admin.status_with_delivery_company') }}</option>
+                                    <option value="received">{{ __('admin.status_received') }}</option>
+                                    <option value="cancelled">{{ __('admin.status_cancelled') }}</option>
+                                    <option value="returned">{{ __('admin.status_returned') }}</option>
+                                </select>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-sm text-gray-700 pb-2">
+                                <input type="checkbox"
+                                       @change="toggleAll($event.target.checked)"
+                                       class="rounded border-gray-300 text-primary focus:ring-primary/20">
+                                {{ __('admin.select_all') }}
+                            </label>
+                        </div>
+
+                        {{-- Orders list --}}
+                        <div class="border border-gray-100 rounded-lg divide-y divide-gray-100">
+                            @foreach($processingOrders as $pOrder)
+                                <label class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" name="order_ids[]" value="{{ $pOrder->id }}"
+                                           x-model="selected"
+                                           class="rounded border-gray-300 text-primary focus:ring-primary/20">
+                                    <span class="text-sm font-mono font-medium text-primary">
+                                        {{ $pOrder->order_number }}
+                                    </span>
+                                    <span class="text-sm text-gray-700 truncate">{{ $pOrder->full_name }}</span>
+                                    <span class="text-xs text-gray-400 {{ $direction === 'rtl' ? 'mr-auto' : 'ml-auto' }}">
+                                        {{ $pOrder->city->name ?? '-' }} · {{ number_format($pOrder->total_price_for_customer, 2) }} JOD
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Footer --}}
+                @if($processingOrders->isNotEmpty())
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+                    <span class="text-sm text-gray-500"
+                          x-text="'{{ __('admin.selected_count', ['count' => '__C__']) }}'.replace('__C__', selected.length)"></span>
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="selected = []"
+                                class="px-4 py-2 border border-gray-200 rounded-lg
+                                       hover:bg-gray-50 text-sm font-medium text-gray-700">
+                            {{ __('admin.clear') }}
+                        </button>
+                        <button type="submit"
+                                x-bind:disabled="selected.length === 0"
+                                class="px-6 py-2 bg-primary text-white rounded-lg
+                                       hover:bg-primary/90 text-sm font-medium
+                                       disabled:opacity-50 disabled:cursor-not-allowed">
+                            {{ __('admin.apply') }}
+                        </button>
+                    </div>
+                </div>
+                @endif
+            </form>
+        </div>
+    </div>
+    @endcan
 </div>
 
 {{-- Search & Filter --}}
