@@ -486,7 +486,7 @@
             @endif
 
             <div class="footer">
-                <div class="thanks">{{ config('app.name') }}</div>
+                <div class="thanks">Ana Trendy</div>
                 <div class="ornament" style="margin: 1.5mm 0;">
                     <span class="line"></span>
                     <span class="diamond"></span>
