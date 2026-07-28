@@ -959,6 +959,7 @@ return [
     'validation_max_uses_min' => 'الحد الأقصى للاستخدام يجب أن يكون 1 على الأقل.',
     'validation_valid_from_required' => 'تاريخ البدء مطلوب.',
     'validation_valid_from_date' => 'تاريخ البدء يجب أن يكون تاريخاً صالحاً.',
+    'validation_valid_from_future' => 'تاريخ البدء يجب أن يكون اليوم أو في المستقبل.',
     'validation_valid_until_after' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء.',
     'validation_code_format' => 'رمز الكوبون يمكن أن يحتوي على أحرف وأرقام وشرطات سفلية فقط.',
 

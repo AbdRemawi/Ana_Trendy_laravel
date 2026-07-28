@@ -100,5 +100,11 @@ class UpdateCouponRequest extends FormRequest
                 'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
+
+        // Free delivery coupons carry no discount value; default to 0 so the
+        // hidden/absent value field doesn't fail the required+numeric rules.
+        if ($this->input('type') === 'free_delivery') {
+            $this->merge(['value' => 0]);
+        }
     }
 }

@@ -961,6 +961,7 @@ return [
     'validation_max_uses_min' => 'Maximum uses must be at least 1.',
     'validation_valid_from_required' => 'The valid from date is required.',
     'validation_valid_from_date' => 'The valid from date must be a valid date.',
+    'validation_valid_from_future' => 'The valid from date must be today or in the future.',
     'validation_valid_until_after' => 'The valid until date must be after valid from date.',
     'validation_code_format' => 'Coupon code can only contain letters, numbers, and underscores.',
 

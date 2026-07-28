@@ -200,9 +200,9 @@ class Order extends Model
         $itemsCost = $this->items()->get()->sum(function ($item) {
             return $item->unit_cost_price * $item->quantity;
         });
-        $deliveryCost = $this->real_delivery_fee ?? 0;
 
-        return (float) ($itemsRevenue - $itemsCost - $deliveryCost);
+        // Profit is items revenue minus items cost only; delivery is not part of profit.
+        return (float) ($itemsRevenue - $itemsCost);
     }
 
     public function getTotalItemsAttribute(): int

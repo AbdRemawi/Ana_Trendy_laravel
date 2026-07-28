@@ -46,7 +46,7 @@ class StoreCouponRequest extends FormRequest
             'valid_from' => [
                 'required',
                 'date',
-                'after_or_equal:now',
+                'after_or_equal:today',
             ],
             'valid_until' => [
                 'nullable',
@@ -79,7 +79,7 @@ class StoreCouponRequest extends FormRequest
             'max_uses.min' => __('admin.validation_max_uses_min'),
             'valid_from.required' => __('admin.validation_valid_from_required'),
             'valid_from.date' => __('admin.validation_valid_from_date'),
-            'valid_from.after' => __('admin.validation_valid_from_future'),
+            'valid_from.after_or_equal' => __('admin.validation_valid_from_future'),
             'valid_until.after' => __('admin.validation_valid_until_after'),
         ];
     }
@@ -100,5 +100,11 @@ class StoreCouponRequest extends FormRequest
         $this->merge([
             'is_active' => $this->has('is_active') ? true : false,
         ]);
+
+        // Free delivery coupons carry no discount value; default to 0 so the
+        // hidden/absent value field doesn't fail the required+numeric rules.
+        if ($this->input('type') === 'free_delivery') {
+            $this->merge(['value' => 0]);
+        }
     }
 }
