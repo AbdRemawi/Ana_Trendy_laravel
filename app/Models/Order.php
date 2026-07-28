@@ -196,9 +196,13 @@ class Order extends Model
     public function getProfitAttribute(): float
     {
         $itemsRevenue = $this->items()->sum('total_price');
-        // Calculate items cost by summing unit_cost_price * quantity
-        $itemsCost = $this->items()->get()->sum(function ($item) {
-            return $item->unit_cost_price * $item->quantity;
+        // Calculate items cost using the current product cost price (falls back to
+        // the snapshotted unit_cost_price when the product no longer exists), so the
+        // profit stays consistent with the "Cost" shown on the order page and reflects
+        // any later correction to the product's wholesale price.
+        $itemsCost = $this->items()->with('product')->get()->sum(function ($item) {
+            $costPrice = $item->product->cost_price ?? $item->unit_cost_price;
+            return $costPrice * $item->quantity;
         });
 
         // Profit is items revenue minus items cost only; delivery is not part of profit.
