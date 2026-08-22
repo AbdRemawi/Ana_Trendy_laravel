@@ -18,6 +18,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin New-Order Notification Address
+    |--------------------------------------------------------------------------
+    |
+    | Address that receives a notification email whenever a new order is
+    | placed through the checkout API, so orders can be reviewed promptly.
+    |
+    */
+
+    'admin_notify_address' => env('ADMIN_NOTIFY_EMAIL', 'abd.rimawi98@gmail.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Mailer Configurations
     |--------------------------------------------------------------------------
     |

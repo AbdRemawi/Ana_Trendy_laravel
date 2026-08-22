@@ -12,8 +12,11 @@ use App\Services\CouponValidationService;
 use App\Services\InventoryService;
 use App\Enums\OrderStatus;
 use App\Enums\CouponType;
+use App\Mail\NewOrderNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -128,6 +131,10 @@ class CheckoutController extends Controller
                 $coupon->incrementUsedCount();
             }
 
+            // Notify the admin so the new order can be reviewed promptly.
+            // Wrapped in try/catch so an email failure never rolls back the order.
+            $this->sendNewOrderNotification($order);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order created successfully',
@@ -138,6 +145,28 @@ class CheckoutController extends Controller
                 ]
             ], 201);
         });
+    }
+
+    /**
+     * Send the admin new-order notification email.
+     *
+     * Failures are logged but swallowed so a mail/SMTP problem can never
+     * roll back an already-committed order.
+     */
+    private function sendNewOrderNotification(Order $order): void
+    {
+        try {
+            $order->loadMissing(['items.product', 'mobiles', 'city']);
+
+            Mail::to(config('mail.admin_notify_address'))
+                ->send(new NewOrderNotification($order));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send new-order notification email', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function generateOrderNumber(): string
