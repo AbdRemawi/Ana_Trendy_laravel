@@ -132,8 +132,11 @@ class CheckoutController extends Controller
             }
 
             // Notify the admin so the new order can be reviewed promptly.
-            // Wrapped in try/catch so an email failure never rolls back the order.
-            $this->sendNewOrderNotification($order);
+            // Deferred so the SMTP round-trip runs AFTER the response is sent —
+            // otherwise a slow/blocked outbound SMTP (common on budget hosts)
+            // stalls the checkout response and the storefront times out even
+            // though the order was created. Still wrapped in try/catch inside.
+            defer(fn () => $this->sendNewOrderNotification($order));
 
             return response()->json([
                 'success' => true,
