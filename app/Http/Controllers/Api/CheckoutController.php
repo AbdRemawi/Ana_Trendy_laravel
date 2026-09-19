@@ -129,6 +129,13 @@ class CheckoutController extends Controller
             // Increment coupon usage
             if ($coupon) {
                 $coupon->incrementUsedCount();
+
+                // If this coupon was won on the prize wheel, mark the winning
+                // spin as redeemed so the customer's reward is consumed and no
+                // longer offered on their next visit.
+                \App\Models\SpinnerSpin::where('coupon_id', $coupon->id)
+                    ->where('is_redeemed', false)
+                    ->update(['is_redeemed' => true]);
             }
 
             // Notify the admin so the new order can be reviewed promptly.

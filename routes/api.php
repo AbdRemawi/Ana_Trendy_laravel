@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CitiesController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\OrderTrackingController;
+use App\Http\Controllers\Api\SpinnerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,4 +45,15 @@ Route::prefix('v1')->group(function () {
 
     // Checkout API
     Route::post('checkout', [CheckoutController::class, 'store']);
+
+    // Spinner (spin-the-wheel prizes) API
+    Route::prefix('spinner')->group(function () {
+        Route::get('config', [SpinnerController::class, 'config']);
+        Route::get('status', [SpinnerController::class, 'status']);
+        // Rate limited to blunt scripted spamming of the wheel.
+        Route::post('spin', [SpinnerController::class, 'spin'])
+            ->middleware('throttle:20,1');
+        Route::post('claim', [SpinnerController::class, 'claim'])
+            ->middleware('throttle:20,1');
+    });
 });

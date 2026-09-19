@@ -39,6 +39,12 @@ class NavigationHelper
                 'permission' => Permission::VIEW_ORDERS->value,
             ],
             [
+                'name' => 'spinner',
+                'route' => 'admin.spinner.index',
+                'icon' => 'M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v10l6.5 3.75M12 12l-6.5 3.75M12 12V2',
+                'permission' => Permission::VIEW_ORDERS->value,
+            ],
+            [
                 'name' => 'products',
                 'route' => 'admin.products.index',
                 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',

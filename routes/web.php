@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SpinnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
@@ -257,6 +258,11 @@ Route::middleware(['auth', 'throttle:60,1'])->prefix('admin')->name('admin.')->g
     Route::middleware(['permission:view orders'])->group(function () {
         Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
         Route::get('coupons/{coupon}', [CouponController::class, 'show'])->name('coupons.show');
+    });
+
+    // Spinner (prize wheel) history - who played and what they won
+    Route::middleware(['permission:view orders'])->group(function () {
+        Route::get('spinner', [SpinnerController::class, 'index'])->name('spinner.index');
     });
 
     Route::middleware(['permission:manage orders'])->group(function () {

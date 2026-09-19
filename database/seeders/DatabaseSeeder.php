@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             DeliveryCourierFeeSeeder::class,
             CouponSeeder::class,
             OrderSeeder::class,
+            SpinnerPrizeSeeder::class,
         ]);
     }
 }
