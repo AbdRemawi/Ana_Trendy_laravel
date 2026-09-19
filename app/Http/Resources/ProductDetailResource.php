@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @mixin \App\Models\Product
@@ -57,13 +58,31 @@ class ProductDetailResource extends JsonResource
      */
     private function transformImages(): array
     {
-        return $this->images->map(function ($image) {
-            return [
-                'id' => $image->id,
-                'url' => $image->image_url,
-                'is_primary' => (bool) $image->is_primary,
-            ];
-        })->toArray();
+        // Skip rows whose file is missing so the storefront never renders a broken
+        // <img>. Clean the data up permanently with: php artisan products:prune-missing-images
+        return $this->images
+            ->filter(fn ($image) => $this->imageFileExists($image))
+            ->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'url' => $image->image_url,
+                    'is_primary' => (bool) $image->is_primary,
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Whether the image's underlying file actually exists on the public disk.
+     */
+    private function imageFileExists($image): bool
+    {
+        $path = (string) $image->image_path;
+
+        return $path !== ''
+            && ! str_contains($path, 'undefined')
+            && Storage::disk('public')->exists($path);
     }
 
     /**
@@ -117,11 +136,11 @@ class ProductDetailResource extends JsonResource
     private function getPrimaryImageUrl(): ?string
     {
         if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
-            $primaryImage = $this->images->firstWhere('is_primary', true);
+            // Only consider images whose file actually exists, preferring the primary,
+            // so a missing primary file falls back to a real one instead of breaking.
+            $usable = $this->images->filter(fn ($image) => $this->imageFileExists($image));
 
-            if (!$primaryImage) {
-                $primaryImage = $this->images->first();
-            }
+            $primaryImage = $usable->firstWhere('is_primary', true) ?? $usable->first();
 
             return $primaryImage?->image_url;
         }

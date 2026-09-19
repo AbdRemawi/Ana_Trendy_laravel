@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\LanguageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/img/{path}', [ImageController::class, 'show'])
     ->where('path', '.*')
     ->name('img.show');
+
+// Raw public-disk file passthrough. Serves files that the public/storage nginx symlink
+// fails to reach (see MediaController). No image processing, no GD dependency.
+Route::get('/media/{path}', [MediaController::class, 'show'])
+    ->where('path', '.*')
+    ->name('media.show');
 
 // Language switcher
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');

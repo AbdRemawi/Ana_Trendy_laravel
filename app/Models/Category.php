@@ -99,7 +99,9 @@ class Category extends Model
     public function getImageUrlAttribute(): ?string
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            // Served via /media (PHP passthrough) rather than the /storage nginx symlink,
+            // which is stale on production and 404s files that exist in storage/app/public.
+            return url('media/' . ltrim((string) $this->image, '/'));
         }
 
         return null;

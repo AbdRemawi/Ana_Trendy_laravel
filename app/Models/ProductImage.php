@@ -72,10 +72,16 @@ class ProductImage extends Model
 
     /**
      * Get the image URL attribute.
+     *
+     * Serves through the /media endpoint (MediaController), which reads the file directly
+     * from the public disk via PHP instead of the /storage nginx symlink. On production
+     * the public/storage symlink is stale and 404s most files even though they exist in
+     * storage/app/public; /media resolves them regardless of the symlink, with a 1-year
+     * immutable cache and no image-processing dependency. Works identically on local.
      */
     public function getImageUrlAttribute(): string
     {
-        return asset('storage/' . $this->image_path);
+        return url('media/' . ltrim((string) $this->image_path, '/'));
     }
 
     /**
