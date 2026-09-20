@@ -161,6 +161,8 @@ Route::middleware(['auth', 'throttle:60,1'])->prefix('admin')->name('admin.')->g
 
     Route::middleware(['permission:view products'])->group(function () {
         Route::get('products', [ProductController::class, 'index'])->name('products.index');
+        // Must precede products/{product} so "export" isn't captured as an id.
+        Route::get('products/export', [ProductController::class, 'export'])->name('products.export');
         Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     });
 

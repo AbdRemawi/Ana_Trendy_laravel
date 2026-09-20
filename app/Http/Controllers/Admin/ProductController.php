@@ -87,6 +87,100 @@ class ProductController extends Controller
     }
 
     /**
+     * Export an inventory report of in-stock products to Excel/CSV.
+     *
+     * Only products whose current stock (supply + return - sale - damage
+     * +/- adjustment) is greater than zero are included. For each product we
+     * output name, brand, remaining quantity, total wholesale cost
+     * (cost_price * remaining) and the effective sell price (offer price when
+     * set, otherwise sale price). A grand-total row closes the sheet.
+     *
+     * Authorization handled by the `view products` route middleware.
+     */
+    public function export(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $products = Product::query()
+            ->with('brand')
+            ->withStockQuantity()
+            ->inStock()
+            ->orderBy('name')
+            ->get();
+
+        $filename = 'in-stock-products-' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return response()->streamDownload(function () use ($products) {
+            $out = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel renders Arabic correctly.
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, [
+                __('admin.export_product_name'),
+                __('admin.export_product_brand'),
+                __('admin.export_remaining_quantity'),
+                __('admin.export_unit_cost_price'),
+                __('admin.export_total_wholesale'),
+                __('admin.export_unit_sell_price'),
+                __('admin.export_total_sell_value'),
+                __('admin.export_unit_profit'),
+                __('admin.export_total_profit'),
+            ]);
+
+            $sumQuantity = 0;
+            $sumWholesale = 0;
+            $sumSellValue = 0;
+            $sumProfit = 0;
+
+            foreach ($products as $product) {
+                $quantity      = (int) $product->stock_quantity;
+                $costPrice     = (float) $product->cost_price;
+                $sellPrice     = (float) $product->effective_price;
+                $wholesaleCost = $costPrice * $quantity;
+                $sellValue     = $sellPrice * $quantity;
+                $unitProfit    = $sellPrice - $costPrice;
+                $totalProfit   = $unitProfit * $quantity;
+
+                $sumQuantity  += $quantity;
+                $sumWholesale += $wholesaleCost;
+                $sumSellValue += $sellValue;
+                $sumProfit    += $totalProfit;
+
+                fputcsv($out, [
+                    $product->name,
+                    $product->brand->name ?? '-',
+                    $quantity,
+                    number_format($costPrice, 2, '.', ''),
+                    number_format($wholesaleCost, 2, '.', ''),
+                    number_format($sellPrice, 2, '.', ''),
+                    number_format($sellValue, 2, '.', ''),
+                    number_format($unitProfit, 2, '.', ''),
+                    number_format($totalProfit, 2, '.', ''),
+                ]);
+            }
+
+            // Grand-total row.
+            fputcsv($out, [
+                __('admin.export_totals'),
+                '',
+                $sumQuantity,
+                '',
+                number_format($sumWholesale, 2, '.', ''),
+                '',
+                number_format($sumSellValue, 2, '.', ''),
+                '',
+                number_format($sumProfit, 2, '.', ''),
+            ]);
+
+            fclose($out);
+        }, $filename, $headers);
+    }
+
+    /**
      * Show the form for creating a new product.
      * Authorization is handled via route middleware.
      */

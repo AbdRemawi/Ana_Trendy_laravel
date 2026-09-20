@@ -858,6 +858,17 @@ return [
     'export_total_wholesale' => 'Total Wholesale',
     'export_totals' => 'Grand Total',
 
+    // In-stock products export
+    'export_in_stock_products' => 'Export In-Stock (Excel)',
+    'export_product_name' => 'Product Name',
+    'export_product_brand' => 'Brand',
+    'export_remaining_quantity' => 'Remaining Quantity',
+    'export_unit_cost_price' => 'Unit Cost Price',
+    'export_unit_sell_price' => 'Unit Sell Price',
+    'export_total_sell_value' => 'Total Sell Value',
+    'export_unit_profit' => 'Profit / Unit',
+    'export_total_profit' => 'Total Profit',
+
     // Order Success Messages
     'order_created_successfully' => 'Order created successfully.',
     'order_updated_successfully' => 'Order updated successfully.',

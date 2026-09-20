@@ -856,6 +856,17 @@ return [
     'export_total_wholesale' => 'إجمالي الجملة',
     'export_totals' => 'الإجمالي الكلي',
 
+    // In-stock products export
+    'export_in_stock_products' => 'تصدير المتوفر (Excel)',
+    'export_product_name' => 'اسم المنتج',
+    'export_product_brand' => 'العلامة التجارية',
+    'export_remaining_quantity' => 'الكمية المتبقية',
+    'export_unit_cost_price' => 'سعر التكلفة للوحدة',
+    'export_unit_sell_price' => 'سعر البيع للوحدة',
+    'export_total_sell_value' => 'إجمالي قيمة البيع',
+    'export_unit_profit' => 'الربح للوحدة',
+    'export_total_profit' => 'إجمالي الربح',
+
     // Order Success Messages
     'order_created_successfully' => 'تم إنشاء الطلب بنجاح.',
     'order_updated_successfully' => 'تم تحديث الطلب بنجاح.',
