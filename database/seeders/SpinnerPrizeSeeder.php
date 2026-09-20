@@ -16,11 +16,14 @@ class SpinnerPrizeSeeder extends Seeder
      * never be won (e.g. the 50% decoy).
      *
      * Requested behaviour:
-     *  - خصم 5 دنانير (5 JOD)  => high chance
+     *  - خصم 5 دنانير (5 JOD)  => highest chance (main winning prize)
+     *  - خصم 7 دنانير (7 JOD)  => second highest chance
      *  - خصم دينارين  (2 JOD)  => smaller chance
-     *  - حظ أوفر      (no prize) => high chance, shown in low priority (last)
+     *  - حظ أوفر      (no prize) => decoy, shown in low priority (last)
      *  - حاول مرة أخرى (try again) => lets the device spin again
      *  - خصم 50%      (percentage) => never wins (weight 0)
+     *
+     * So among the winnable discounts the odds rank: 5 دنانير > 7 دنانير > دينارين.
      */
     public function run(): void
     {
@@ -48,6 +51,17 @@ class SpinnerPrizeSeeder extends Seeder
                 'is_active' => true,
             ],
             [
+                'label' => 'خصم 7 دنانير',
+                'type' => SpinnerPrizeType::COUPON_FIXED->value,
+                'coupon_value' => 7,
+                'coupon_min_order' => 0,
+                'coupon_validity_days' => 30,
+                'weight' => 40,          // second highest chance
+                'color' => '#9AD37E',
+                'sort_order' => 3,
+                'is_active' => true,
+            ],
+            [
                 'label' => 'خصم 10 دينار',
                 'type' => SpinnerPrizeType::COUPON_FIXED->value,
                 'coupon_value' => 10,
@@ -55,7 +69,7 @@ class SpinnerPrizeSeeder extends Seeder
                 'coupon_validity_days' => 30,
                 'weight' => 0,           // decoy – shown on the wheel but never lands
                 'color' => '#7EB8DC',
-                'sort_order' => 3,
+                'sort_order' => 4,
                 'is_active' => true,
             ],
             [
@@ -66,7 +80,7 @@ class SpinnerPrizeSeeder extends Seeder
                 'coupon_validity_days' => 30,
                 'weight' => 0,           // decoy – never lands
                 'color' => '#FFD166',
-                'sort_order' => 4,
+                'sort_order' => 5,
                 'is_active' => true,
             ],
             [
@@ -75,9 +89,9 @@ class SpinnerPrizeSeeder extends Seeder
                 'coupon_value' => null,
                 'coupon_min_order' => 0,
                 'coupon_validity_days' => 30,
-                'weight' => 18,          // allows a re-spin
+                'weight' => 18,          // allows a re-spin (unchanged)
                 'color' => '#7ED0C0',
-                'sort_order' => 5,
+                'sort_order' => 6,
                 'is_active' => true,
             ],
             [
@@ -88,7 +102,7 @@ class SpinnerPrizeSeeder extends Seeder
                 'coupon_validity_days' => 30,
                 'weight' => 0,           // decoy – shown last but never lands
                 'color' => '#C9CBCF',
-                'sort_order' => 6,
+                'sort_order' => 7,
                 'is_active' => true,
             ],
         ];
