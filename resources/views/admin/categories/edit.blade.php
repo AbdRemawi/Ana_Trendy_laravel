@@ -146,7 +146,7 @@
                             {{ __('admin.current_image') ?? 'Current Image' }}
                         </label>
                         <div class="inline-block relative">
-                            <img src="{{ asset('storage/' . $category->image) }}"
+                            <img src="{{ $category->image_url }}"
                                  alt="{{ $category->name }}"
                                  class="w-32 h-32 object-cover rounded-lg border border-gray-200">
                         </div>

@@ -47,7 +47,9 @@ class Brand extends Model
     public function getLogoUrlAttribute(): ?string
     {
         if ($this->logo) {
-            return asset('storage/' . $this->logo);
+            // Served via /media (PHP passthrough) rather than the /storage nginx symlink,
+            // which is stale on production and 404s files that exist in storage/app/public.
+            return url('media/' . ltrim((string) $this->logo, '/'));
         }
 
         return null;

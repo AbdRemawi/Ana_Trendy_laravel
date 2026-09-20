@@ -16,9 +16,9 @@ class SpinnerPrizeSeeder extends Seeder
      * never be won (e.g. the 50% decoy).
      *
      * Requested behaviour:
-     *  - خصم دينارين  (2 JOD)  => high chance
+     *  - خصم 5 دنانير (5 JOD)  => high chance
+     *  - خصم دينارين  (2 JOD)  => smaller chance
      *  - حظ أوفر      (no prize) => high chance, shown in low priority (last)
-     *  - خصم 5 دنانير (5 JOD)  => small chance
      *  - حاول مرة أخرى (try again) => lets the device spin again
      *  - خصم 50%      (percentage) => never wins (weight 0)
      */
@@ -31,7 +31,7 @@ class SpinnerPrizeSeeder extends Seeder
                 'coupon_value' => 2,
                 'coupon_min_order' => 0,
                 'coupon_validity_days' => 30,
-                'weight' => 75,          // highest chance – the main winning prize
+                'weight' => 7,           // smaller chance
                 'color' => '#F4A9C7',
                 'sort_order' => 1,
                 'is_active' => true,
@@ -42,7 +42,7 @@ class SpinnerPrizeSeeder extends Seeder
                 'coupon_value' => 5,
                 'coupon_min_order' => 0,
                 'coupon_validity_days' => 30,
-                'weight' => 7,           // small chance
+                'weight' => 75,          // highest chance – the main winning prize
                 'color' => '#B57EDC',
                 'sort_order' => 2,
                 'is_active' => true,

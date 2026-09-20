@@ -4,7 +4,7 @@
         <div class="flex items-center gap-2 {{ $direction === 'rtl' ? 'flex-row-reverse' : '' }}">
             {!! str_repeat('<span class="inline-block w-4"></span>', $level) !!}
             @if($category->image)
-                <img src="{{ asset('storage/' . $category->image) }}"
+                <img src="{{ $category->image_url }}"
                      alt="{{ $category->name }}"
                      class="w-10 h-10 object-cover rounded-lg border border-gray-200">
             @else
