@@ -700,8 +700,9 @@
             return;
         }
 
-        // Clear previous new images
-        clearNewImages();
+        // Clear previous preview cards & state — but keep the file input's
+        // selected files intact so they are actually submitted with the form.
+        clearNewImagePreviews();
 
         // Read and display new images
         newImagesData = files;
@@ -892,14 +893,22 @@
         });
     }
 
-    // Clear new images
-    function clearNewImages() {
+    // Clear new image preview cards and related state.
+    // Does NOT reset the file input, so the selected files remain attached
+    // to the form and are submitted to the server.
+    function clearNewImagePreviews() {
         newImagesData = [];
         selectedNewImageIndex = null;
 
         // Remove all new image cards from DOM
         const newImageWrappers = elements.imagesGrid.querySelectorAll('[data-is-new="true"]');
         newImageWrappers.forEach(wrapper => wrapper.remove());
+    }
+
+    // Clear new images completely, including resetting the file input.
+    // Use only when the user cancels/clears the selection.
+    function clearNewImages() {
+        clearNewImagePreviews();
 
         // Reset file input
         if (elements.imageInput) {
