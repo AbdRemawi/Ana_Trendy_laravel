@@ -47,8 +47,22 @@ class CouponController extends Controller
         }
 
         $coupon = $result['coupon'];
+
+        // Coupons only discount products that are NOT already on offer. When the
+        // cart items are supplied, base the discount on the eligible subtotal
+        // (non-discounted products only); otherwise fall back to the full
+        // subtotal as a best-effort estimate.
+        $discountBase = $request->subtotal;
+        if ($request->filled('items')) {
+            $cartItems = collect($request->input('items'))->map(fn($item) => [
+                'product_id' => $item['id'],
+                'quantity' => $item['quantity'],
+            ])->toArray();
+            $discountBase = $this->calculationService->calculateCouponEligibleSubtotal($cartItems);
+        }
+
         $discountAmount = $this->calculationService->calculateCouponDiscount(
-            $request->subtotal,
+            $discountBase,
             $coupon
         );
 
@@ -119,8 +133,13 @@ class CouponController extends Controller
 
             if ($validation['valid']) {
                 $coupon = $validation['coupon'];
+
+                // Coupons only discount products without an active offer, so
+                // base the discount on the eligible subtotal (non-discounted
+                // items only).
+                $eligibleSubtotal = $this->calculationService->calculateCouponEligibleSubtotal($cartItems);
                 $couponDiscount = $this->calculationService->calculateCouponDiscount(
-                    $subtotal,
+                    $eligibleSubtotal,
                     $coupon
                 );
             } else {

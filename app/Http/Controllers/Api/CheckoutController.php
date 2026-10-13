@@ -53,8 +53,13 @@ class CheckoutController extends Controller
                     ], 422);
                 }
                 $coupon = $validation['coupon'];
+
+                // Coupons only discount products that are NOT already on offer,
+                // so calculate the discount against the eligible subtotal
+                // (non-discounted items only) rather than the full cart total.
+                $eligibleSubtotal = $this->calculationService->calculateCouponEligibleSubtotal($cartItems);
                 $couponDiscountAmount = $this->calculationService->calculateCouponDiscount(
-                    $request->subtotal,
+                    $eligibleSubtotal,
                     $coupon
                 );
 

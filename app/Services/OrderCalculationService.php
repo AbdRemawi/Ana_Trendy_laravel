@@ -17,6 +17,27 @@ class OrderCalculationService
         });
     }
 
+    /**
+     * Subtotal of only the items a coupon is allowed to discount.
+     *
+     * Coupons never apply to products that already carry an offer (a
+     * product-level discount), so those lines are excluded here. The coupon
+     * discount is calculated against — and later distributed across — this
+     * eligible subtotal only.
+     */
+    public function calculateCouponEligibleSubtotal(array $cartItems): float
+    {
+        return collect($cartItems)->sum(function ($item) {
+            $product = Product::findOrFail($item['product_id']);
+
+            if ($product->hasOffer()) {
+                return 0;
+            }
+
+            return $product->sale_price * $item['quantity'];
+        });
+    }
+
     public function calculateCouponDiscount(
         float $subtotal,
         Coupon $coupon
@@ -37,14 +58,37 @@ class OrderCalculationService
             return $this->prepareItemsWithoutDiscount($cartItems);
         }
 
-        $totalUnits = collect($cartItems)->sum('quantity');
+        // Only products WITHOUT an offer share the coupon discount; discounted
+        // products are left at their offer price. Spread the discount across the
+        // eligible units only, otherwise some of it would be silently lost.
+        $eligibleUnits = collect($cartItems)->sum(function ($item) {
+            $product = Product::findOrFail($item['product_id']);
+            return $product->hasOffer() ? 0 : $item['quantity'];
+        });
 
-        return collect($cartItems)->map(function ($item) use ($totalCouponDiscount, $totalUnits) {
+        if ($eligibleUnits <= 0) {
+            return $this->prepareItemsWithoutDiscount($cartItems);
+        }
+
+        return collect($cartItems)->map(function ($item) use ($totalCouponDiscount, $eligibleUnits) {
             $product = Product::findOrFail($item['product_id']);
             $basePrice = $product->offer_price ?? $product->sale_price;
 
+            // Products with an active offer never receive coupon savings.
+            if ($product->hasOffer()) {
+                return [
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'base_price' => $basePrice,
+                    'coupon_discount_per_unit' => 0,
+                    'unit_sale_price' => $basePrice,
+                    'unit_cost_price' => $product->cost_price,
+                    'total_price' => round($basePrice * $item['quantity'], 2),
+                ];
+            }
+
             $itemUnits = $item['quantity'];
-            $discountShare = ($itemUnits / $totalUnits) * $totalCouponDiscount;
+            $discountShare = ($itemUnits / $eligibleUnits) * $totalCouponDiscount;
             $discountPerUnit = $discountShare / $itemUnits;
 
             $unitSalePrice = round($basePrice - $discountPerUnit, 2);

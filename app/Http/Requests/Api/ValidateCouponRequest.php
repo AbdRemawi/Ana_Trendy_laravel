@@ -18,6 +18,11 @@ class ValidateCouponRequest extends FormRequest
         return [
             'coupon_code' => ['required', 'string'],
             'subtotal' => ['required', 'numeric', 'min:0'],
+            // Optional cart items. When provided, the discount is calculated
+            // only against products that are not already on offer.
+            'items' => ['sometimes', 'array', 'min:1'],
+            'items.*.id' => ['required_with:items', 'integer', 'exists:products,id'],
+            'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
         ];
     }
 

@@ -8,6 +8,29 @@ The Coupon API provides endpoints to validate coupon codes and calculate discoun
 
 ---
 
+## ⚠️ Important: Coupons & Discounted Products
+
+**Coupons do NOT apply to products that already have a discount (an active offer price).**
+
+- `fixed` and `percentage` coupons only discount products that are **not** already on offer.
+- `free_delivery` coupons are the **only** coupon type that still provides value when the cart contains discounted products, because they reduce shipping — not the product price.
+- A product "has a discount" when its `offer_price` is set and lower than its `sale_price` (exposed on the Product API as `has_offer: true`).
+
+### What this means for calculations
+
+- The coupon discount is calculated against the **eligible subtotal** — the sum of only the products **without** an offer — not the full cart subtotal.
+- The discount is distributed across the eligible (non-discounted) items only. Discounted items keep their offer price untouched (`coupon_discount_per_unit: 0`).
+- If **every** product in the cart is already discounted, a `fixed`/`percentage` coupon results in a discount of `0` (the order still completes normally; only a `free_delivery` coupon would have an effect).
+
+### Action required from the frontend
+
+To display a discount that matches what checkout actually charges, the frontend must tell the API which products are in the cart so it knows which are discounted:
+
+- **`/coupon/preview`** and **`/checkout`** already receive `items`, so they are automatically correct — **no change needed**.
+- **`/coupon/validate`** now accepts an **optional `items` array**. Send it so the displayed `discount_amount` matches checkout. Without `items`, this endpoint falls back to estimating the discount on the full `subtotal`, which may be higher than the real discount when the cart contains discounted products.
+
+---
+
 ## Endpoints
 
 ### 1. Validate Coupon Code
@@ -21,7 +44,10 @@ Validates a coupon code and returns detailed discount information.
 ```json
 {
   "coupon_code": "RIMAWISTATIC",
-  "subtotal": 363.01
+  "subtotal": 363.01,
+  "items": [
+    { "id": 129, "quantity": 1 }
+  ]
 }
 ```
 
@@ -30,7 +56,12 @@ Validates a coupon code and returns detailed discount information.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | coupon_code | string | Yes | The coupon code to validate |
-| subtotal | numeric | Yes | The cart subtotal before discount |
+| subtotal | numeric | Yes | The cart subtotal before discount (used as the fallback discount base and for the minimum-order check) |
+| items | array | No (recommended) | Cart items. **Send this** so the discount is calculated only against non-discounted products and matches checkout. If omitted, the discount is estimated on the full `subtotal`. |
+| items.*.id | integer | With `items` | Product ID |
+| items.*.quantity | integer | With `items` | Product quantity |
+
+> **Note:** When `items` is provided, `discount_amount` is calculated against the eligible subtotal (products without an offer). The returned `subtotal` field still reflects the full cart subtotal you sent.
 
 **Success Response (200):**
 
@@ -174,17 +205,22 @@ When an invalid coupon is provided, the endpoint still returns 200 but includes 
 
 ## Coupon Types
 
+> All product discounts below apply **only to the eligible subtotal** — the products that are **not** already on offer. Products that already have a discount (`has_offer: true`) are excluded.
+
 ### 1. Fixed Discount
-- Deducts a fixed amount from the subtotal
-- **Example:** Coupon value = 20.00, Subtotal = 100.00 → Discount = 20.00
+- Deducts a fixed amount from the **eligible** subtotal (capped at the eligible subtotal)
+- **Example:** Coupon value = 20.00, eligible subtotal = 100.00 → Discount = 20.00
+- If all cart products are already discounted, eligible subtotal = 0 → Discount = 0
 
 ### 2. Percentage Discount
-- Deducts a percentage from the subtotal
-- **Example:** Coupon value = 10 (%), Subtotal = 100.00 → Discount = 10.00
+- Deducts a percentage from the **eligible** subtotal
+- **Example:** Coupon value = 10 (%), eligible subtotal = 100.00 → Discount = 10.00
+- If all cart products are already discounted, eligible subtotal = 0 → Discount = 0
 
 ### 3. Free Delivery
-- Removes shipping cost from the total
+- Removes shipping cost from the total; does not touch product prices
 - **Example:** Shipping = 5.00 → Discount = 5.00 (from shipping only)
+- **The only coupon type that still benefits a cart made entirely of discounted products.**
 
 ---
 
@@ -217,6 +253,12 @@ function CartSummary({ cartItems, shipping, onCouponApplied }) {
         body: JSON.stringify({
           coupon_code: couponCode,
           subtotal: subtotal,
+          // Send the cart items so the discount is calculated only against
+          // products that are NOT already discounted (matches checkout).
+          items: cartItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
         }),
       });
 
@@ -340,7 +382,10 @@ curl -X POST http://localhost/api/v1/coupon/validate \
   -H "Accept: application/json" \
   -d '{
     "coupon_code": "RIMAWISTATIC",
-    "subtotal": 363.01
+    "subtotal": 363.01,
+    "items": [
+      {"id": 129, "quantity": 1}
+    ]
   }'
 ```
 
@@ -374,6 +419,7 @@ curl -X POST http://localhost/api/v1/coupon/preview \
    - Usage limit
    - Minimum order amount
 5. **Free Delivery:** For `free_delivery` type coupons, the discount is applied to shipping, not subtotal
+6. **Discounted products:** `fixed`/`percentage` coupons apply only to products **without** an active offer. Products with an offer (`has_offer: true`) are excluded from the discount. `free_delivery` is unaffected by this rule.
 
 ---
 
