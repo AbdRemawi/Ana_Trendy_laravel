@@ -861,6 +861,7 @@ return [
     'export_product_name' => 'اسم المنتج',
     'export_product_brand' => 'العلامة التجارية',
     'export_remaining_quantity' => 'الكمية المتبقية',
+    'export_has_offer' => 'يحتوي على عرض',
     'export_unit_cost_price' => 'سعر التكلفة للوحدة',
     'export_unit_sell_price' => 'سعر البيع للوحدة',
     'export_total_sell_value' => 'إجمالي قيمة البيع',

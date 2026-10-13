@@ -863,6 +863,7 @@ return [
     'export_product_name' => 'Product Name',
     'export_product_brand' => 'Brand',
     'export_remaining_quantity' => 'Remaining Quantity',
+    'export_has_offer' => 'Has Offer',
     'export_unit_cost_price' => 'Unit Cost Price',
     'export_unit_sell_price' => 'Unit Sell Price',
     'export_total_sell_value' => 'Total Sell Value',

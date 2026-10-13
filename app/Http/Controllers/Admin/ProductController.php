@@ -122,6 +122,7 @@ class ProductController extends Controller
             fputcsv($out, [
                 __('admin.export_product_name'),
                 __('admin.export_product_brand'),
+                __('admin.export_has_offer'),
                 __('admin.export_remaining_quantity'),
                 __('admin.export_unit_cost_price'),
                 __('admin.export_total_wholesale'),
@@ -153,6 +154,7 @@ class ProductController extends Controller
                 fputcsv($out, [
                     $product->name,
                     $product->brand->name ?? '-',
+                    $product->has_offer ? 'true' : 'false',
                     $quantity,
                     number_format($costPrice, 2, '.', ''),
                     number_format($wholesaleCost, 2, '.', ''),
